@@ -163,8 +163,8 @@ services:
       - TZ=${TZ}
     volumes:
       - "${CONFIG_BASE}/radarr:/config"
-      - "media_volume:${CONTAINER_MEDIA_PATH}:ro"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}:ro"
+      - "media_volume:${CONTAINER_MEDIA_PATH}"
+      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
       - media_center_apps
     restart: unless-stopped
@@ -200,8 +200,8 @@ services:
       - TZ=${TZ}
     volumes:
       - "${CONFIG_BASE}/sonarr:/config"
-      - "media_volume:${CONTAINER_MEDIA_PATH}:ro"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}:ro"
+      - "media_volume:${CONTAINER_MEDIA_PATH}"
+      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
       - media_center_apps
     restart: unless-stopped
