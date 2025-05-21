@@ -1,6 +1,14 @@
 # Development Guide
 
-This document explains the structure and configuration of the Media Center stack.
+## Deprecation Notice
+
+The default `docker-compose.yaml` currently maintains backward compatibility by using local config and temp storage. This behavior will be deprecated on January 1, 2026. For new deployments, please use the appropriate `docker-compose.local-*.yaml` files.
+
+### Migration Path
+- **Current Setup** (local config/temp): Use `docker-compose.local-config-temp.yaml`
+- **All Local Storage**: Use `docker-compose.local-all.yaml`
+- **All External Storage**: Use base `docker-compose.yaml` with external volumes
+- **Mixed Storage**: Use appropriate `docker-compose.local-*.yaml` files
 
 ## Docker Compose Structure
 
@@ -21,60 +29,120 @@ service_name:
     - TZ=${TZ}
     # Service-specific environment variables
   volumes:
-    - "${SERVICE_CONFIG}:/config"
-    - "media_center_media:${CONTAINER_MEDIA_PATH}"
+    - "config_volume:/config"  # or /app/config for some services
+    - "media_volume:${CONTAINER_MEDIA_PATH}"
   networks:
     - media_center_apps
   restart: unless-stopped
 ```
 
-### Volume Mapping
+## Storage Configuration
 
-The stack supports two types of media storage through Docker volumes, configured using separate compose files:
+The stack supports flexible storage configuration through various compose files:
 
-1. **Local Storage (Default)**
+### Base Configuration
+- `docker-compose.yaml`: 
+  - **Legacy/Current Behavior**: Defaults to local config and temp storage (until Jan 1, 2026)
+  - **Future Behavior**: All volumes will be external
+  - **Migration Note**: For current behavior, use `docker-compose.local-config-temp.yaml`
+
+### Local Storage Options
+
+1. **All Local Storage**
+   - File: `docker-compose.local-all.yaml`
+   - All storage types (media, config, temp) use local bind mounts
    ```bash
-   ENABLE_EXTERNAL_MEDIA_VOLUME=false
-   MEDIA_BASE=/path/to/your/media
-   ```
-   Use docker-compose.local.yaml:
-   ```yaml
-   volumes:
-     media_volume:
-       driver: local
-       driver_opts:
-         type: none
-         o: bind
-         device: ${MEDIA_BASE}
-   ```
-   Deploy with:
-   ```bash
-   docker compose -f docker-compose.yaml -f docker-compose.local.yaml up -d
+   docker compose -f docker-compose.yaml -f docker-compose.local-all.yaml up -d
    ```
 
-2. **External Volume**
+2. **Single Local Storage**
+   - `docker-compose.local-media.yaml`: Only media uses local storage
+   - `docker-compose.local-config.yaml`: Only config uses local storage
+   - `docker-compose.local-temp.yaml`: Only temp uses local storage
    ```bash
-   ENABLE_EXTERNAL_MEDIA_VOLUME=true
-   MEDIA_VOLUME_NAME=my_external_volume
-   ```
-   Use default docker-compose.yaml:
-   ```yaml
-   volumes:
-     media_volume:
-       external: true
-       name: ${MEDIA_VOLUME_NAME}
-   ```
-   Deploy with:
-   ```bash
-   docker compose up -d
+   # Example: Local media, external config/temp
+   docker compose -f docker-compose.yaml -f docker-compose.local-media.yaml up -d
    ```
 
-All services use the same volume configuration regardless of the storage type:
+3. **Dual Local Storage**
+   - `docker-compose.local-media-config.yaml`: Media and config use local storage
+   - `docker-compose.local-media-temp.yaml`: Media and temp use local storage
+   - `docker-compose.local-config-temp.yaml`: Config and temp use local storage (current default behavior)
+   ```bash
+   # Example: Local media and config, external temp
+   docker compose -f docker-compose.yaml -f docker-compose.local-media-config.yaml up -d
+   ```
+
+### Storage Types
+
+1. **Media Storage**
+   - Primary path: `${CONTAINER_MEDIA_PATH}` (`/media`)
+   - Legacy path: `${CONTAINER_MEDIA_PATH_LEGACY}` (`/media-center`)
+   - Local path: `${MEDIA_BASE}`
+   - External volume: `${MEDIA_VOLUME_NAME}`
+
+2. **Configuration Storage**
+   - Standard path: `/config`
+   - Special paths: `/app/config`, `/app/data`
+   - Local path: `${CONFIG_BASE}`
+   - External volume: `${CONFIG_VOLUME_NAME}`
+
+3. **Temporary Storage**
+   - Paths: `/temp`, `/cache`, `/downloads`
+   - Local path: `${TEMP_BASE}`
+   - External volume: `${TEMP_VOLUME_NAME}`
+
+### Pipeline Integration
+
+Each compose file is self-contained and can be used independently in pipelines:
+
 ```yaml
-volumes:
-  - "media_volume:${CONTAINER_MEDIA_PATH}"
-  - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
+# GitLab CI example
+stages:
+  - deploy
+
+deploy_media:
+  stage: deploy
+  script:
+    - docker compose -f docker-compose.local-media.yaml up -d
+
+deploy_config:
+  stage: deploy
+  script:
+    - docker compose -f docker-compose.local-config.yaml up -d
+
+deploy_temp:
+  stage: deploy
+  script:
+    - docker compose -f docker-compose.local-temp.yaml up -d
+
+deploy_all_local:
+  stage: deploy
+  script:
+    - docker compose -f docker-compose.local-all.yaml up -d
 ```
+
+### Common Deployment Scenarios
+
+1. **Legacy/Current Setup (until Jan 1, 2026)**
+   ```bash
+   # Local config and temp (current default)
+   docker compose up -d
+   # OR explicitly with the same behavior
+   docker compose -f docker-compose.yaml -f docker-compose.local-config-temp.yaml up -d
+   ```
+
+2. **New Deployments (Recommended)**
+   ```bash
+   # All local storage
+   docker compose -f docker-compose.yaml -f docker-compose.local-all.yaml up -d
+
+   # All external storage
+   docker compose -f docker-compose.yaml up -d  # After Jan 1, 2026
+
+   # Mixed storage (example: local config/temp, external media)
+   docker compose -f docker-compose.yaml -f docker-compose.local-config-temp.yaml up -d
+   ```
 
 ### Base Paths
 ```bash
@@ -226,6 +294,3 @@ This stack is configured for ROCKCHIP devices and includes specific hardware acc
 ### External Volumes and Networks
 
 The stack supports optional external volumes and networks through environment variables:
-
-1. **External Media Volume**
-   ```

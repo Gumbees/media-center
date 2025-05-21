@@ -1,3 +1,17 @@
+# DEPRECATION NOTICE
+# This file defaults to local config and temp storage for backward compatibility.
+# This behavior will be removed on January 1, 2026.
+# For new deployments, please use the appropriate docker-compose.local-*.yaml files
+# for your storage configuration.
+#
+# Migration Guide:
+# - For the current default behavior (local config/temp): use docker-compose.local-config-temp.yaml
+# - For all local storage: use docker-compose.local-all.yaml
+# - For all external storage: use this file with external volumes
+# See DEVELOPMENT.md for detailed documentation
+
+version: "3.8"
+
 x-volume-local: &volume-local
   driver: local
   driver_opts:
@@ -21,9 +35,9 @@ services:
       - PUID=${PUID}
       - TZ=${TZ}
     volumes:
-      - "${BAZARR_CONFIG}:/config"
-      - "media_volume:${CONTAINER_MEDIA_PATH}"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - "${CONFIG_BASE}/bazarr:/config"
+      - "media_volume:${CONTAINER_MEDIA_PATH}:ro"
+      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}:ro"
     networks:
       - media_center_apps
     restart: unless-stopped
@@ -37,16 +51,12 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      #- DOCKER_MODS=linuxserver/mods:universal-calibre #optional
-      #- OAUTHLIB_RELAX_TOKEN_SCOPE=1 #optional
     networks:
       - media_center_apps
     volumes:
-      - "${CALIBRE_WEB_CONFIG}:/config"
-      - "media_volume:${CONTAINER_MEDIA_PATH}"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-    #ports:
-      #- 8083:8083
+      - "${CONFIG_BASE}/calibre-web:/config"
+      - "media_volume:${CONTAINER_MEDIA_PATH}:ro"
+      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}:ro"
     restart: unless-stopped
 
   calibre:
@@ -54,22 +64,14 @@ services:
     container_name: calibre
     env_file:
       - stack.env
-    #security_opt:
-      #- seccomp:unconfined #optional
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      #- PASSWORD= #optional
-      #- CLI_ARGS= #optional
     volumes:
-      - "${CALIBRE_CONFIG}:/config"
+      - "${CONFIG_BASE}/calibre:/config"
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-    #ports:
-      #- 8080:8080
-      #- 8181:8181
-      #- 8081:8081
     restart: unless-stopped
     networks:
       - media_center_apps
@@ -86,12 +88,10 @@ services:
     networks:
       - media_center_apps
     volumes:
-      - "${READARR_CONFIG}:/config"
-      - "media_volume:${CONTAINER_MEDIA_PATH}"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-      - "${READARR_DOWNLOADS}:/downloads"
-    #ports:
-      #- 8787:8787
+      - "${CONFIG_BASE}/readarr:/config"
+      - "media_volume:${CONTAINER_MEDIA_PATH}:ro"
+      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}:ro"
+      - "${TEMP_BASE}/readarr:/downloads"
     restart: unless-stopped
 
   jellyfin:
@@ -110,10 +110,10 @@ services:
       - ${ROCKCHIP_DEVICE_RGA}
       - ${ROCKCHIP_DEVICE_MPP}
     volumes:
-      - "${JELLYFIN_CONFIG}:/config"
-      - "${JELLYFIN_CACHE}:/cache"
-      - "media_volume:${CONTAINER_MEDIA_PATH}"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - "${CONFIG_BASE}/jellyfin-data:/config"
+      - "${TEMP_BASE}/jellyfin:/cache"
+      - "media_volume:${CONTAINER_MEDIA_PATH}:ro"
+      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}:ro"
     networks:
       media_center_apps:
       home_iot:
@@ -133,7 +133,7 @@ services:
       - PORT=${JELLYFIN_PORT}
       - LOG_LEVEL=${JELLYFIN_LOG_LEVEL}
     volumes:
-      - "${JELLYSEERR_CONFIG}:/app/config"
+      - "${CONFIG_BASE}/jellyseerr:/app/config"
     networks:
       - media_center_apps
     restart: unless-stopped
@@ -151,10 +151,10 @@ services:
       - TORRENTING_PORT=6881
       - TZ=${TZ}
     volumes:
-      - "${QBITTORRENT_CONFIG}:/config"
+      - "${CONFIG_BASE}/qbittorrent:/config"
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-      - "${QBITTORRENT_TEMP}:/temp"
+      - "${TEMP_BASE}/qbittorrent:/temp"
     networks:
       - media_center_apps
     restart: unless-stopped
@@ -170,9 +170,9 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
     volumes:
-      - "${RADARR_CONFIG}:/config"
-      - "media_volume:${CONTAINER_MEDIA_PATH}"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - "${CONFIG_BASE}/radarr:/config"
+      - "media_volume:${CONTAINER_MEDIA_PATH}:ro"
+      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}:ro"
     networks:
       - media_center_apps
     restart: unless-stopped
@@ -188,10 +188,10 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
     volumes:
-      - "${SABNZBD_CONFIG}:/config"
+      - "${CONFIG_BASE}/sabnzbd:/config"
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-      - "${SABNZBD_TEMP}:/temp"
+      - "${TEMP_BASE}/sabnzbd:/temp"
     networks:
       - media_center_apps
     restart: unless-stopped
@@ -207,9 +207,9 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
     volumes:
-      - "${SONARR_CONFIG}:/config"
-      - "media_volume:${CONTAINER_MEDIA_PATH}"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - "${CONFIG_BASE}/sonarr:/config"
+      - "media_volume:${CONTAINER_MEDIA_PATH}:ro"
+      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}:ro"
     networks:
       - media_center_apps
     restart: unless-stopped
@@ -240,7 +240,7 @@ services:
       - TZ=${TZ}
       - JELLYSTAT_JELLYFIN_URL=${JELLYFIN_SERVER_URL}
     volumes:
-      - "${JELLYSTAT_CONFIG}:/app/data"
+      - "${CONFIG_BASE}/jellystat:/app/data"
     networks:
       - media_center_apps
     restart: unless-stopped
@@ -256,3 +256,9 @@ volumes:
   media_volume:
     external: true
     name: ${MEDIA_VOLUME_NAME}
+  config_volume:
+    external: true
+    name: ${CONFIG_VOLUME_NAME}
+  temp_volume:
+    external: true
+    name: ${TEMP_VOLUME_NAME}

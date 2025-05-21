@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  readarr:
+    volumes:
+      - "${TEMP_BASE}/readarr:/downloads"
+  jellyfin:
+    volumes:
+      - "${TEMP_BASE}/jellyfin:/cache"
+  qbittorrent:
+    volumes:
+      - "${TEMP_BASE}/qbittorrent:/temp"
+  sabnzbd:
+    volumes:
+      - "${TEMP_BASE}/sabnzbd:/temp"
+
+volumes:
+  media_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${MEDIA_BASE} 

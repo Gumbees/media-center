@@ -84,15 +84,50 @@ The hardware acceleration features have been specifically optimized for this set
 
 3. Choose your deployment type:
 
-   For local storage:
+   > **⚠️ Deprecation Notice**: The default behavior (local config/temp storage) will be deprecated on January 1, 2026.
+   > For new deployments, please use the appropriate `docker-compose.local-*.yaml` files.
+
+   **All Local Storage** (recommended for new deployments):
    ```bash
-   docker compose -f docker-compose.yaml -f docker-compose.local.yaml up -d
+   docker compose -f docker-compose.yaml -f docker-compose.local-all.yaml up -d
    ```
 
-   For external volume (e.g., NFS):
+   **Local Media Only**:
    ```bash
-   # Ensure your external volume exists
+   docker compose -f docker-compose.yaml -f docker-compose.local-media.yaml up -d
+   ```
+
+   **Local Config Only**:
+   ```bash
+   docker compose -f docker-compose.yaml -f docker-compose.local-config.yaml up -d
+   ```
+
+   **Local Temp Only**:
+   ```bash
+   docker compose -f docker-compose.yaml -f docker-compose.local-temp.yaml up -d
+   ```
+
+   **Local Media and Config**:
+   ```bash
+   docker compose -f docker-compose.yaml -f docker-compose.local-media-config.yaml up -d
+   ```
+
+   **Local Media and Temp**:
+   ```bash
+   docker compose -f docker-compose.yaml -f docker-compose.local-media-temp.yaml up -d
+   ```
+
+   **Local Config and Temp** (current default behavior, deprecated Jan 1, 2026):
+   ```bash
+   # Either of these commands will work:
    docker compose up -d
+   # OR explicitly with the same behavior:
+   docker compose -f docker-compose.yaml -f docker-compose.local-config-temp.yaml up -d
+   ```
+
+   **All External Storage** (future default behavior):
+   ```bash
+   docker compose -f docker-compose.yaml up -d  # After Jan 1, 2026
    ```
 
 ### Optional Features
@@ -133,17 +168,58 @@ These features are disabled by default and can be enabled as needed. See `DEVELO
 
 ## Storage Architecture
 
-The stack uses a layered storage approach:
-- **System & Configuration**: ZFS filesystem providing snapshots and data integrity
-- **Media Content**: Flexible storage through either:
-  - Local directory mounted via Docker volume
+The stack uses a flexible storage approach with multiple deployment options:
+
+### 1. Configuration Storage
+- **Purpose**: Service configurations, databases, and application data
+- **Deployment Options**:
+  - Local storage using bind mounts (via `docker-compose.local-config.yaml`)
+  - External Docker volume (default after Jan 1, 2026)
+- **Standard Paths**:
+  - `/config` for most services
+  - `/app/config` or `/app/data` for specific services
+- **Environment Variables**:
+  - `CONFIG_BASE`: Local storage path
+  - `CONFIG_VOLUME_NAME`: External volume name
+
+### 2. Media Storage
+- **Purpose**: Movies, TV shows, music, and books
+- **Deployment Options**:
+  - Local directory (via `docker-compose.local-media.yaml`)
   - External Docker volume (e.g., NFS mount)
-- **Temporary Data**: Local filesystem for cache and temporary files
+- **Access Levels**:
+  - Read-only for streaming/management services
+  - Read-write for download services
+- **Environment Variables**:
+  - `MEDIA_BASE`: Local storage path
+  - `MEDIA_VOLUME_NAME`: External volume name
+  - `CONTAINER_MEDIA_PATH`: Standard mount point
+  - `CONTAINER_MEDIA_PATH_LEGACY`: Legacy mount point (compatibility)
+
+### 3. Temporary Storage
+- **Purpose**: Cache, downloads, and temporary files
+- **Deployment Options**:
+  - Local filesystem (via `docker-compose.local-temp.yaml`)
+  - External Docker volume
+- **Environment Variables**:
+  - `TEMP_BASE`: Local storage path
+  - `TEMP_VOLUME_NAME`: External volume name
+
+### Storage Combinations
+The stack supports various storage combinations through compose files:
+- `docker-compose.local-all.yaml`: All storage types use local bind mounts
+- `docker-compose.local-media.yaml`: Only media uses local storage
+- `docker-compose.local-config.yaml`: Only config uses local storage
+- `docker-compose.local-temp.yaml`: Only temp uses local storage
+- `docker-compose.local-media-config.yaml`: Media and config use local storage
+- `docker-compose.local-media-temp.yaml`: Media and temp use local storage
+- `docker-compose.local-config-temp.yaml`: Config and temp use local storage (current default)
 
 This architecture ensures:
-- Data integrity through ZFS features
-- Flexible media storage options
-- Optimal performance for different types of data
+- Flexible deployment options for different environments
+- Clear separation of storage types
+- Easy migration path for future changes
+- Backward compatibility during transition
 
 ## Network Architecture
 
