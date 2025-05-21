@@ -237,11 +237,40 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - JELLYSTAT_JELLYFIN_URL=${JELLYFIN_SERVER_URL}
+      - POSTGRES_USER=${JELLYSTAT_DB_USER}
+      - POSTGRES_PASSWORD=${JELLYSTAT_DB_PASSWORD}
+      - POSTGRES_IP=${CONTAINER_NAME_PREFIX}_jellystat_db
+      - POSTGRES_PORT=5432
+      - JWT_SECRET=${JELLYSTAT_JWT_SECRET}
     volumes:
       - "${CONFIG_BASE}/jellystat:/app/data"
+      - "jellystat_backup:/app/backend/backup-data"
     networks:
       - media_center_apps
+      - jellystat_db_network
+    depends_on:
+      - jellystat_db
     restart: unless-stopped
+
+  jellystat_db:
+    container_name: "${CONTAINER_NAME_PREFIX}_jellystat_db"
+    image: "postgres:15.2"
+    shm_size: 1gb
+    env_file:
+      - stack.env
+    environment:
+      - POSTGRES_USER=${JELLYSTAT_DB_USER}
+      - POSTGRES_PASSWORD=${JELLYSTAT_DB_PASSWORD}
+    volumes:
+      - "jellystat_db:/var/lib/postgresql/data"
+    networks:
+      - jellystat_db_network
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-file: '5'
+        max-size: 10m
 
 networks:
   media_center_apps:
@@ -249,6 +278,8 @@ networks:
   home_iot:
     external: ${ENABLE_HOME_IOT_NETWORK:-false}
     name: "${HOME_IOT_NETWORK:-home_iot}"
+  jellystat_db_network:
+    name: "${CONTAINER_NAME_PREFIX}_jellystat_db_network"
 
 volumes:
   media_volume:
@@ -260,3 +291,7 @@ volumes:
   temp_volume:
     external: ${ENABLE_EXTERNAL_TEMP_VOLUME:-true}
     name: ${TEMP_VOLUME_NAME}
+  jellystat_db:
+    name: "${CONTAINER_NAME_PREFIX}_jellystat_db"
+  jellystat_backup:
+    name: "${CONTAINER_NAME_PREFIX}_jellystat_backup"
