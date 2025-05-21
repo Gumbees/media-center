@@ -82,12 +82,22 @@ The hardware acceleration features have been specifically optimized for this set
    nano stack.env  # or use your preferred editor
    ```
 
-3. Choose your deployment type:
+3. Create your external volumes:
+   ```bash
+   # Create the required Docker volumes
+   docker volume create media_center_media
+   docker volume create media_center_config
+   docker volume create media_center_temp
+   ```
 
-   > **⚠️ Deprecation Notice**: The default behavior (local config/temp storage) will be deprecated on January 1, 2026.
-   > For new deployments, please use the appropriate `docker-compose.local-*.yaml` files.
+4. Choose your deployment type:
 
-   **All Local Storage** (recommended for new deployments):
+   **Default Setup (External Storage)**:
+   ```bash
+   docker compose up -d
+   ```
+
+   **All Local Storage**:
    ```bash
    docker compose -f docker-compose.yaml -f docker-compose.local-all.yaml up -d
    ```
@@ -117,24 +127,23 @@ The hardware acceleration features have been specifically optimized for this set
    docker compose -f docker-compose.yaml -f docker-compose.local-media-temp.yaml up -d
    ```
 
-   **Local Config and Temp** (current default behavior, deprecated Jan 1, 2026):
+   **Local Config and Temp**:
    ```bash
-   # Either of these commands will work:
-   docker compose up -d
-   # OR explicitly with the same behavior:
    docker compose -f docker-compose.yaml -f docker-compose.local-config-temp.yaml up -d
-   ```
-
-   **All External Storage** (future default behavior):
-   ```bash
-   docker compose -f docker-compose.yaml up -d  # After Jan 1, 2026
    ```
 
 ### Optional Features
 
 The stack includes several optional features that can be enabled in your `stack.env`:
 
-1. **Media Storage Options**:
+1. **Container Naming**:
+   ```bash
+   # Default value is "media_center"
+   CONTAINER_NAME_PREFIX=media_center
+   ```
+   Customize the prefix used for all container names in the stack. Containers will be named as `${CONTAINER_NAME_PREFIX}_service_name`.
+
+2. **Media Storage Options**:
    - **Local Storage**:
      ```bash
      ENABLE_EXTERNAL_MEDIA_VOLUME=false
@@ -151,14 +160,14 @@ The stack includes several optional features that can be enabled in your `stack.
      Uses a pre-existing Docker volume (e.g., NFS mount). The volume must be created before starting the stack.
      Deploy with: `docker compose up -d`
 
-2. **Home IoT Network**: Enable to connect Jellyfin to your home automation network
+3. **Home IoT Network**: Enable to connect Jellyfin to your home automation network
    ```bash
    ENABLE_HOME_IOT_NETWORK=true
    HOME_IOT_NETWORK=my_home_network
    JELLYFIN_IP=192.168.1.100
    ```
 
-3. **Cloudflare Tunnel**: Enable for secure remote access
+4. **Cloudflare Tunnel**: Enable for secure remote access
    ```bash
    ENABLE_CLOUDFLARED=enabled
    CLOUDFLARED_TOKEN=your_cloudflare_tunnel_token

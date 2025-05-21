@@ -1,5 +1,19 @@
 version: "3.8"
 
+volumes:
+  media_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${MEDIA_BASE}
+  config_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${CONFIG_BASE}
+
 services:
   bazarr:
     volumes:
@@ -33,12 +47,4 @@ services:
       - "${CONFIG_BASE}/sonarr:/config"
   jellystat:
     volumes:
-      - "${CONFIG_BASE}/jellystat:/app/data"
-
-volumes:
-  media_volume:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${MEDIA_BASE} 
+      - "${CONFIG_BASE}/jellystat:/app/data" 

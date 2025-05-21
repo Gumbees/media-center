@@ -12,14 +12,14 @@ The default `docker-compose.yaml` currently maintains backward compatibility by 
 
 ## Docker Compose Structure
 
-The `docker-compose.yaml` file is organized into several sections:
+The `docker-compose.yaml` file is organized into several sections and uses external volumes by default. For local storage options, use the appropriate override files.
 
 ### Service Definition Pattern
 
 Each service follows this general pattern:
 ```yaml
 service_name:
-  container_name: "service_name"
+  container_name: "${CONTAINER_NAME_PREFIX}_service_name"
   image: "image_source:tag"
   env_file:
     - stack.env
@@ -38,37 +38,45 @@ service_name:
 
 ## Storage Configuration
 
-The stack supports flexible storage configuration through various compose files:
+The stack uses external volumes by default and supports flexible storage configuration through Docker Compose overrides:
 
 ### Base Configuration
-- `docker-compose.yaml`: 
-  - **Legacy/Current Behavior**: Defaults to local config and temp storage (until Jan 1, 2026)
-  - **Future Behavior**: All volumes will be external
-  - **Migration Note**: For current behavior, use `docker-compose.local-config-temp.yaml`
+- `docker-compose.yaml`: Uses external volumes for all storage (media, config, and temp)
 
-### Local Storage Options
+### Volume Override Files
 
-1. **All Local Storage**
-   - File: `docker-compose.local-all.yaml`
-   - All storage types (media, config, temp) use local bind mounts
+Each override file defines specific local volume configurations:
+
+1. **Single Volume Overrides**
+   - `docker-compose.local-media.yaml`: Local media volume
+   - `docker-compose.local-config.yaml`: Local config volume
+   - `docker-compose.local-temp.yaml`: Local temp volume
+
+2. **Multi-Volume Overrides**
+   - `docker-compose.local-media-config.yaml`: Local media and config volumes
+   - `docker-compose.local-media-temp.yaml`: Local media and temp volumes
+   - `docker-compose.local-config-temp.yaml`: Local config and temp volumes
+   - `docker-compose.local-all.yaml`: All volumes use local storage
+
+### Usage Examples
+
+1. **Default Setup (External Storage)**
    ```bash
+   # All volumes are external
+   docker compose up -d
+   ```
+
+2. **All Local Storage**
+   ```bash
+   # Override all volumes to use local storage
    docker compose -f docker-compose.yaml -f docker-compose.local-all.yaml up -d
    ```
 
-2. **Single Local Storage**
-   - `docker-compose.local-media.yaml`: Only media uses local storage
-   - `docker-compose.local-config.yaml`: Only config uses local storage
-   - `docker-compose.local-temp.yaml`: Only temp uses local storage
+3. **Mixed Storage**
    ```bash
    # Example: Local media, external config/temp
    docker compose -f docker-compose.yaml -f docker-compose.local-media.yaml up -d
-   ```
 
-3. **Dual Local Storage**
-   - `docker-compose.local-media-config.yaml`: Media and config use local storage
-   - `docker-compose.local-media-temp.yaml`: Media and temp use local storage
-   - `docker-compose.local-config-temp.yaml`: Config and temp use local storage (current default behavior)
-   ```bash
    # Example: Local media and config, external temp
    docker compose -f docker-compose.yaml -f docker-compose.local-media-config.yaml up -d
    ```
@@ -78,18 +86,18 @@ The stack supports flexible storage configuration through various compose files:
 1. **Media Storage**
    - Primary path: `${CONTAINER_MEDIA_PATH}` (`/media`)
    - Legacy path: `${CONTAINER_MEDIA_PATH_LEGACY}` (`/media-center`)
-   - Local path: `${MEDIA_BASE}`
+   - Local path: `${MEDIA_BASE}` (when using local storage)
    - External volume: `${MEDIA_VOLUME_NAME}`
 
 2. **Configuration Storage**
    - Standard path: `/config`
    - Special paths: `/app/config`, `/app/data`
-   - Local path: `${CONFIG_BASE}`
+   - Local path: `${CONFIG_BASE}` (when using local storage)
    - External volume: `${CONFIG_VOLUME_NAME}`
 
 3. **Temporary Storage**
    - Paths: `/temp`, `/cache`, `/downloads`
-   - Local path: `${TEMP_BASE}`
+   - Local path: `${TEMP_BASE}` (when using local storage)
    - External volume: `${TEMP_VOLUME_NAME}`
 
 ### Pipeline Integration
@@ -158,6 +166,14 @@ MEDIA_BASE=/data/media         # Media storage (when not using external volume)
 
 The `stack.env` file is organized into sections:
 
+### Container Naming
+```bash
+CONTAINER_NAME_PREFIX=media_center
+```
+- Defines the prefix used for all container names
+- Default value is "media_center"
+- Container names will be formatted as `${CONTAINER_NAME_PREFIX}_service_name`
+
 ### Base Paths
 ```bash
 CONFIG_BASE=/data/media_center
@@ -199,98 +215,3 @@ SERVICE_TEMP=${TEMP_BASE}/service-name
 MEDIA_CENTER_NETWORK=media_center_apps
 HOME_IOT_NETWORK=home
 ```
-- Defines Docker networks
-- Includes both internal and external networks
-
-### Security Best Practices
-
-1. **Environment File Management**
-   - Never commit `stack.env` to version control
-   - Use `stack.env.example` as a template
-   - Keep sensitive data offline or in a key vault
-   - The `.gitignore` file is configured to exclude `stack.env`
-
-2. **Sensitive Data Handling**
-   - API tokens
-   - Network configurations
-   - Service credentials
-   - Device-specific paths
-
-## Adding New Services
-
-To add a new service:
-
-1. Add service definition to `docker-compose.yaml`:
-   - Follow the standard pattern
-   - Include necessary environment variables
-   - Configure appropriate volume mappings
-
-2. Add configuration paths to `stack.env`:
-   ```bash
-   NEW_SERVICE_CONFIG=${CONFIG_BASE}/new-service
-   NEW_SERVICE_TEMP=${TEMP_BASE}/new-service  # if needed
-   ```
-
-3. Create necessary directories:
-   ```bash
-   mkdir -p ${CONFIG_BASE}/new-service
-   mkdir -p ${TEMP_BASE}/new-service  # if needed
-   ```
-
-4. Set appropriate permissions:
-   ```bash
-   chown -R ${PUID}:${PGID} ${CONFIG_BASE}/new-service
-   ```
-
-## Best Practices
-
-1. **Environment Variables**
-   - Use descriptive names
-   - Group related variables
-   - Document any special requirements
-
-2. **Volume Management**
-   - Use named volumes for shared storage
-   - Use bind mounts for configuration
-   - Keep temporary files in `TEMP_BASE`
-
-3. **Network Configuration**
-   - Use internal network for service communication
-   - Expose ports only when necessary
-   - Use external network for specific integrations
-
-4. **Security**
-   - Never commit sensitive data to version control
-   - Use environment variables for secrets
-   - Follow principle of least privilege
-
-## Troubleshooting
-
-1. Check container logs:
-   ```bash
-   docker-compose logs service-name
-   ```
-
-2. Verify volume permissions:
-   ```bash
-   ls -l ${CONFIG_BASE}/service-name
-   ```
-
-3. Validate network connectivity:
-   ```bash
-   docker network inspect media_center_apps
-   ```
-
-## Hardware Acceleration
-
-This stack is configured for ROCKCHIP devices and includes specific hardware acceleration mappings. When developing or modifying the stack, be aware of:
-
-- Device mappings in the `docker-compose.yaml`
-- Hardware-specific environment variables in `stack.env`
-- The `ENABLE_ROCKCHIP_ACCELERATION` toggle
-
-## Optional Features
-
-### External Volumes and Networks
-
-The stack supports optional external volumes and networks through environment variables:
