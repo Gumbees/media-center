@@ -12,8 +12,8 @@ services:
       # ... (other env vars)
     volumes:
       - "${BAZARR_CONFIG}:/config"
-      - "media_center_media:${CONTAINER_MEDIA_PATH}"
-      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH_LEGACY}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
       - media_center_apps
     restart: unless-stopped
@@ -33,8 +33,8 @@ services:
       - media_center_apps
     volumes:
       - "${CALIBRE_WEB_CONFIG}:/config"
-      - "media_center_media:${CONTAINER_MEDIA_PATH}"
-      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH_LEGACY}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH_LEGACY}"
     #ports:
       #- 8083:8083
     restart: unless-stopped
@@ -54,8 +54,8 @@ services:
       #- CLI_ARGS= #optional
     volumes:
       - "${CALIBRE_CONFIG}:/config"
-      - "media_center_media:${CONTAINER_MEDIA_PATH}"
-      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH_LEGACY}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH_LEGACY}"
     #ports:
       #- 8080:8080
       #- 8181:8181
@@ -77,8 +77,8 @@ services:
       - media_center_apps
     volumes:
       - "${READARR_CONFIG}:/config"
-      - "media_center_media:${CONTAINER_MEDIA_PATH}"
-      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH_LEGACY}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH_LEGACY}"
       - "${READARR_DOWNLOADS}:/downloads"
     #ports:
       #- 8787:8787
@@ -102,8 +102,8 @@ services:
     volumes:
       - "${JELLYFIN_CONFIG}:/config"
       - "${JELLYFIN_CACHE}:/cache"
-      - "media_center_media:${CONTAINER_MEDIA_PATH}"
-      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH_LEGACY}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
       media_center_apps:
       home_iot:
@@ -142,8 +142,8 @@ services:
       - TZ=${TZ}
     volumes:
       - "${QBITTORRENT_CONFIG}:/config"
-      - "media_center_media:${CONTAINER_MEDIA_PATH}"
-      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH_LEGACY}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH_LEGACY}"
       - "${QBITTORRENT_TEMP}:/temp"
     networks:
       - media_center_apps
@@ -161,8 +161,8 @@ services:
       - TZ=${TZ}
     volumes:
       - "${RADARR_CONFIG}:/config"
-      - "media_center_media:${CONTAINER_MEDIA_PATH}"
-      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH_LEGACY}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
       - media_center_apps
     restart: unless-stopped
@@ -179,8 +179,8 @@ services:
       - TZ=${TZ}
     volumes:
       - "${SABNZBD_CONFIG}:/config"
-      - "media_center_media:${CONTAINER_MEDIA_PATH}"
-      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH_LEGACY}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH_LEGACY}"
       - "${SABNZBD_TEMP}:/temp"
     networks:
       - media_center_apps
@@ -198,8 +198,8 @@ services:
       - TZ=${TZ}
     volumes:
       - "${SONARR_CONFIG}:/config"
-      - "media_center_media:${CONTAINER_MEDIA_PATH}"
-      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH}"
+      - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH_LEGACY}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
       - media_center_apps
     restart: unless-stopped
@@ -237,10 +237,10 @@ networks:
   media_center_apps:
     name: "${MEDIA_CENTER_NETWORK}"
   home_iot:
-    external: true
-    name: "${HOME_IOT_NETWORK}"
+    external: ${ENABLE_HOME_IOT_NETWORK:-false}
+    name: "${HOME_IOT_NETWORK:-home_iot}"
 
 volumes:
   media_center_media:
-    external: true
-    name: "${MEDIA_VOLUME_NAME}"
+    external: ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false}
+    name: "${MEDIA_VOLUME_NAME:-media_center_media}"

@@ -88,6 +88,31 @@ The stack is configured through two main files:
 - `docker-compose.yaml`: Service definitions and container configurations
 - `stack.env`: Environment variables and path configurations
 
+### Optional Features
+
+The stack includes several optional features that can be enabled in your `stack.env`:
+
+1. **Media Storage Options**:
+   - **Local Storage (Default)**:
+     ```bash
+     ENABLE_EXTERNAL_MEDIA_VOLUME=false
+     MEDIA_BASE=/data/media
+     ```
+   - **External Volume**:
+     ```bash
+     ENABLE_EXTERNAL_MEDIA_VOLUME=true
+     MEDIA_VOLUME_NAME=my_external_media
+     ```
+
+2. **Home IoT Network**: Enable to connect Jellyfin to your home automation network
+   ```bash
+   ENABLE_HOME_IOT_NETWORK=true
+   HOME_IOT_NETWORK=my_home_network
+   JELLYFIN_IP=192.168.1.100
+   ```
+
+These features are disabled by default and can be enabled as needed. The media storage defaults to using local bind mounts, which is recommended for single-node deployments. External volumes are recommended for multi-node setups or when using NFS mounts.
+
 See `DEVELOPMENT.md` for detailed information about the configuration structure.
 
 ## Network Architecture
