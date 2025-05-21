@@ -30,30 +30,50 @@ service_name:
 
 ### Volume Mapping
 
-The stack supports two types of media storage:
+The stack supports two types of media storage through Docker volumes, configured using separate compose files:
 
 1. **Local Storage (Default)**
    ```bash
    ENABLE_EXTERNAL_MEDIA_VOLUME=false
-   MEDIA_BASE=/data/media  # Local path for media storage
+   MEDIA_BASE=/path/to/your/media
    ```
-   - Uses bind mounts to map local directories
-   - Follows the same pattern as config directories
-   - Recommended for single-node deployments
+   Use docker-compose.local.yaml:
+   ```yaml
+   volumes:
+     media_volume:
+       driver: local
+       driver_opts:
+         type: none
+         o: bind
+         device: ${MEDIA_BASE}
+   ```
+   Deploy with:
+   ```bash
+   docker compose -f docker-compose.yaml -f docker-compose.local.yaml up -d
+   ```
 
-2. **External Volume (Optional)**
+2. **External Volume**
    ```bash
    ENABLE_EXTERNAL_MEDIA_VOLUME=true
-   MEDIA_VOLUME_NAME=media_center_media
+   MEDIA_VOLUME_NAME=my_external_volume
    ```
-   - Uses Docker named volumes
-   - Supports NFS mounts and shared storage
-   - Recommended for multi-node deployments
+   Use default docker-compose.yaml:
+   ```yaml
+   volumes:
+     media_volume:
+       external: true
+       name: ${MEDIA_VOLUME_NAME}
+   ```
+   Deploy with:
+   ```bash
+   docker compose up -d
+   ```
 
-The volume mapping is automatically handled in docker-compose.yaml based on the `ENABLE_EXTERNAL_MEDIA_VOLUME` setting:
+All services use the same volume configuration regardless of the storage type:
 ```yaml
 volumes:
-  - ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false} && "${MEDIA_VOLUME_NAME}:${CONTAINER_MEDIA_PATH}" || "${MEDIA_BASE}:${CONTAINER_MEDIA_PATH}"
+  - "media_volume:${CONTAINER_MEDIA_PATH}"
+  - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
 ```
 
 ### Base Paths
@@ -208,29 +228,4 @@ This stack is configured for ROCKCHIP devices and includes specific hardware acc
 The stack supports optional external volumes and networks through environment variables:
 
 1. **External Media Volume**
-   ```bash
-   # In stack.env
-   ENABLE_EXTERNAL_MEDIA_VOLUME=true
-   MEDIA_VOLUME_NAME=my_external_media
    ```
-   - When enabled, uses an existing Docker volume for media storage
-   - When disabled, creates a local volume automatically
-   - Useful for NFS mounts or shared storage solutions
-
-2. **Home IoT Network**
-   ```bash
-   # In stack.env
-   ENABLE_HOME_IOT_NETWORK=true
-   HOME_IOT_NETWORK=my_home_network
-   JELLYFIN_IP=192.168.1.100
-   ```
-   - When enabled, connects Jellyfin to an external network
-   - When disabled, only uses internal media_center_apps network
-   - Useful for home automation integration
-
-### Default Behavior
-
-- If `ENABLE_EXTERNAL_MEDIA_VOLUME` is not set, defaults to `false`
-- If `ENABLE_HOME_IOT_NETWORK` is not set, defaults to `false`
-- Network and volume names have default values if not specified
-- All optional features can be enabled/disabled without modifying docker-compose.yaml 

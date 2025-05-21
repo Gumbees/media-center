@@ -1,3 +1,14 @@
+x-volume-local: &volume-local
+  driver: local
+  driver_opts:
+    type: none
+    o: bind
+    device: ${MEDIA_BASE}
+
+x-volume-external: &volume-external
+  external: true
+  name: ${MEDIA_VOLUME_NAME}
+
 services:
   bazarr:
     container_name: "bazarr"
@@ -243,9 +254,5 @@ networks:
 
 volumes:
   media_volume:
-    name: "${MEDIA_VOLUME_NAME}"
-    driver_opts:
-      type: none
-      device: ${MEDIA_BASE}
-      o: bind
-    external: ${ENABLE_EXTERNAL_MEDIA_VOLUME:-false}
+    external: true
+    name: ${MEDIA_VOLUME_NAME}

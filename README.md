@@ -81,50 +81,40 @@ The hardware acceleration features have been specifically optimized for this set
    # Edit stack.env with your specific configuration
    nano stack.env  # or use your preferred editor
    ```
-   - **IMPORTANT**: Never commit your `stack.env` file to version control
-   - The `stack.env` file contains sensitive information and should be kept offline
-   - Consider using a key vault service for production deployments
-   - By default, `stack.env` is ignored in `.gitignore`
-   - Review all settings in `stack.env`, particularly:
-     - Network configurations (IPs and domain names)
-     - User/Group IDs (PUID/PGID)
-     - Media storage paths
-     - Cloudflare tunnel token
-3. Create required directories specified in the environment file
-4. Run `docker-compose up -d` to start the stack
 
-## Security Considerations
+3. Choose your deployment type:
 
-- The `stack.env` file contains sensitive information such as:
-  - API tokens
-  - Network configurations
-  - Service credentials
-- Never commit the actual `stack.env` file to public repositories
-- Use `stack.env.example` as a template, which contains no sensitive data
-- Consider using a key vault service for production deployments
-- The repository includes a `.gitignore` file to prevent accidental commits of sensitive files
+   For local storage:
+   ```bash
+   docker compose -f docker-compose.yaml -f docker-compose.local.yaml up -d
+   ```
 
-## Configuration
-
-The stack is configured through two main files:
-- `docker-compose.yaml`: Service definitions and container configurations
-- `stack.env`: Environment variables and path configurations
+   For external volume (e.g., NFS):
+   ```bash
+   # Ensure your external volume exists
+   docker compose up -d
+   ```
 
 ### Optional Features
 
 The stack includes several optional features that can be enabled in your `stack.env`:
 
 1. **Media Storage Options**:
-   - **Local Storage (Default)**:
+   - **Local Storage**:
      ```bash
      ENABLE_EXTERNAL_MEDIA_VOLUME=false
-     MEDIA_BASE=/data/media
+     MEDIA_BASE=/path/to/your/media
      ```
-   - **External Volume (e.g., NFS mount)**:
+     Uses a local directory for media storage, mounted through Docker volumes.
+     Deploy with: `docker compose -f docker-compose.yaml -f docker-compose.local.yaml up -d`
+   
+   - **External Volume**:
      ```bash
      ENABLE_EXTERNAL_MEDIA_VOLUME=true
-     MEDIA_VOLUME_NAME=my_external_media
+     MEDIA_VOLUME_NAME=my_external_volume
      ```
+     Uses a pre-existing Docker volume (e.g., NFS mount). The volume must be created before starting the stack.
+     Deploy with: `docker compose up -d`
 
 2. **Home IoT Network**: Enable to connect Jellyfin to your home automation network
    ```bash
@@ -139,18 +129,20 @@ The stack includes several optional features that can be enabled in your `stack.
    CLOUDFLARED_TOKEN=your_cloudflare_tunnel_token
    ```
 
-These features are disabled by default and can be enabled as needed. The media storage defaults to using local bind mounts, which is recommended for single-node deployments. External volumes are recommended for multi-node setups or when using NFS mounts.
+These features are disabled by default and can be enabled as needed. See `DEVELOPMENT.md` for detailed information about the configuration structure.
 
 ## Storage Architecture
 
 The stack uses a layered storage approach:
 - **System & Configuration**: ZFS filesystem providing snapshots and data integrity
-- **Media Content**: NFS mount for scalable, network-attached storage
+- **Media Content**: Flexible storage through either:
+  - Local directory mounted via Docker volume
+  - External Docker volume (e.g., NFS mount)
 - **Temporary Data**: Local filesystem for cache and temporary files
 
 This architecture ensures:
 - Data integrity through ZFS features
-- Flexible media storage through NFS
+- Flexible media storage options
 - Optimal performance for different types of data
 
 ## Network Architecture
