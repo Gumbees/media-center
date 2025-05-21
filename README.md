@@ -51,11 +51,23 @@ This stack is configured to run on a ROCKCHIP device, utilizing hardware acceler
 ## Getting Started
 
 1. Clone this repository
-2. Copy `stack.env.example` to `stack.env` and configure your environment variables
+2. Set up your environment file:
+   ```bash
+   # Copy the example environment file
+   cp stack.env.example stack.env
+   
+   # Edit stack.env with your specific configuration
+   nano stack.env  # or use your preferred editor
+   ```
    - **IMPORTANT**: Never commit your `stack.env` file to version control
    - The `stack.env` file contains sensitive information and should be kept offline
    - Consider using a key vault service for production deployments
    - By default, `stack.env` is ignored in `.gitignore`
+   - Review all settings in `stack.env`, particularly:
+     - Network configurations (IPs and domain names)
+     - User/Group IDs (PUID/PGID)
+     - Media storage paths
+     - Cloudflare tunnel token
 3. Create required directories specified in the environment file
 4. Run `docker-compose up -d` to start the stack
 
