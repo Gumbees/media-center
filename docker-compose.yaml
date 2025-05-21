@@ -215,8 +215,6 @@ services:
     restart: unless-stopped
 
   cloudflared:
-    profiles:
-      - ${ENABLE_CLOUDFLARED:-disabled}
     container_name: "media_center_cloudflared"
     image: "cloudflare/cloudflared:latest"
     entrypoint: ["cloudflared", "--no-autoupdate"]
@@ -228,6 +226,14 @@ services:
     networks:
       - media_center_apps
     restart: always
+    deploy:
+      replicas: ${ENABLE_CLOUDFLARED:-0}
+    healthcheck:
+      test: ["CMD", "cloudflared", "tunnel", "info"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   jellystat:
     container_name: "jellystat"
