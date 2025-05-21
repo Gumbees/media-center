@@ -205,6 +205,8 @@ services:
     restart: unless-stopped
 
   cloudflared:
+    profiles:
+      - ${ENABLE_CLOUDFLARED:-disabled}
     container_name: "media_center_cloudflared"
     image: "cloudflare/cloudflared:latest"
     entrypoint: ["cloudflared", "--no-autoupdate"]

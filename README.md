@@ -11,6 +11,28 @@ This stack is configured to run on a ROCKCHIP device, utilizing hardware acceler
 - RGA (Raster Graphic Acceleration)
 - MPP (Media Process Platform)
 
+### Tested Environment
+
+This stack has been tested and verified on the following hardware:
+
+**Orange Pi 5 Plus**
+- SoC: Rockchip RK3588 8 Core 64 Bit
+- Memory: 16GB
+- Features: 2.4GHz Frequency, 8K Video Decoding
+- Operating System: Armbian Linux 6.1.99-vendor-rk35xx
+- Armbian Version: v25.2.3
+- Filesystem: ZFS for system and configuration
+- Media Storage: NFS mount for media content
+
+```
+   _             _    _
+   /_\  _ _ _ __ | |__(_)__ _ _ _
+  / _ \| '_| '  \| '_ \ / _` | ' \
+ /_/ \_\_| |_|_|_|_.__/_\__,_|_||_|
+```
+
+The hardware acceleration features have been specifically optimized for this setup, ensuring optimal performance for media transcoding and playback.
+
 ## Core Services
 
 ### Media Management
@@ -98,7 +120,7 @@ The stack includes several optional features that can be enabled in your `stack.
      ENABLE_EXTERNAL_MEDIA_VOLUME=false
      MEDIA_BASE=/data/media
      ```
-   - **External Volume**:
+   - **External Volume (e.g., NFS mount)**:
      ```bash
      ENABLE_EXTERNAL_MEDIA_VOLUME=true
      MEDIA_VOLUME_NAME=my_external_media
@@ -111,9 +133,25 @@ The stack includes several optional features that can be enabled in your `stack.
    JELLYFIN_IP=192.168.1.100
    ```
 
+3. **Cloudflare Tunnel**: Enable for secure remote access
+   ```bash
+   ENABLE_CLOUDFLARED=enabled
+   CLOUDFLARED_TOKEN=your_cloudflare_tunnel_token
+   ```
+
 These features are disabled by default and can be enabled as needed. The media storage defaults to using local bind mounts, which is recommended for single-node deployments. External volumes are recommended for multi-node setups or when using NFS mounts.
 
-See `DEVELOPMENT.md` for detailed information about the configuration structure.
+## Storage Architecture
+
+The stack uses a layered storage approach:
+- **System & Configuration**: ZFS filesystem providing snapshots and data integrity
+- **Media Content**: NFS mount for scalable, network-attached storage
+- **Temporary Data**: Local filesystem for cache and temporary files
+
+This architecture ensures:
+- Data integrity through ZFS features
+- Flexible media storage through NFS
+- Optimal performance for different types of data
 
 ## Network Architecture
 
