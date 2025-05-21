@@ -1,0 +1,246 @@
+services:
+  bazarr:
+    container_name: "bazarr"
+    image: "lscr.io/linuxserver/bazarr:${ARCH}-latest"
+    entrypoint: ["/init"]
+    env_file:
+      - stack.env
+    environment:
+      - PGID=${PGID}
+      - PUID=${PUID}
+      - TZ=${TZ}
+      # ... (other env vars)
+    volumes:
+      - "${BAZARR_CONFIG}:/config"
+      - "media_center_media:${CONTAINER_MEDIA_PATH}"
+      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+    networks:
+      - media_center_apps
+    restart: unless-stopped
+
+  calibre_web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: calibre_web
+    env_file:
+      - stack.env
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      #- DOCKER_MODS=linuxserver/mods:universal-calibre #optional
+      #- OAUTHLIB_RELAX_TOKEN_SCOPE=1 #optional
+    networks:
+      - media_center_apps
+    volumes:
+      - "${CALIBRE_WEB_CONFIG}:/config"
+      - "media_center_media:${CONTAINER_MEDIA_PATH}"
+      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+    #ports:
+      #- 8083:8083
+    restart: unless-stopped
+
+  calibre:
+    image: lscr.io/linuxserver/calibre:latest
+    container_name: calibre
+    env_file:
+      - stack.env
+    #security_opt:
+      #- seccomp:unconfined #optional
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      #- PASSWORD= #optional
+      #- CLI_ARGS= #optional
+    volumes:
+      - "${CALIBRE_CONFIG}:/config"
+      - "media_center_media:${CONTAINER_MEDIA_PATH}"
+      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+    #ports:
+      #- 8080:8080
+      #- 8181:8181
+      #- 8081:8081
+    restart: unless-stopped
+    networks:
+      - media_center_apps
+    
+  readarr:
+    image: lscr.io/linuxserver/readarr:develop
+    container_name: readarr
+    env_file:
+      - stack.env
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    networks:
+      - media_center_apps
+    volumes:
+      - "${READARR_CONFIG}:/config"
+      - "media_center_media:${CONTAINER_MEDIA_PATH}"
+      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - "${READARR_DOWNLOADS}:/downloads"
+    #ports:
+      #- 8787:8787
+    restart: unless-stopped
+
+  jellyfin:
+    container_name: "jellyfin"
+    image: "jellyfin/jellyfin"
+    entrypoint: ["/jellyfin/jellyfin"]
+    env_file:
+      - stack.env
+    environment:
+      - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
+      - TZ=${TZ}
+    devices:
+      - ${ROCKCHIP_DEVICE_DRI}
+      - ${ROCKCHIP_DEVICE_DMA_HEAP}
+      - ${ROCKCHIP_DEVICE_MALI}
+      - ${ROCKCHIP_DEVICE_RGA}
+      - ${ROCKCHIP_DEVICE_MPP}
+    volumes:
+      - "${JELLYFIN_CONFIG}:/config"
+      - "${JELLYFIN_CACHE}:/cache"
+      - "media_center_media:${CONTAINER_MEDIA_PATH}"
+      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+    networks:
+      media_center_apps:
+      home_iot:
+        ipv4_address: ${JELLYFIN_IP}
+    privileged: ${ENABLE_ROCKCHIP_ACCELERATION}
+    restart: unless-stopped
+
+  jellyseerr:
+    container_name: "jellyseerr"
+    image: "fallenbagel/jellyseerr:latest"
+    entrypoint: ["/sbin/tini", "--"]
+    command: ["pnpm", "start"]
+    env_file:
+      - stack.env
+    environment:
+      - TZ=${TZ}
+      - PORT=${JELLYFIN_PORT}
+      - LOG_LEVEL=${JELLYFIN_LOG_LEVEL}
+    volumes:
+      - "${JELLYSEERR_CONFIG}:/app/config"
+    networks:
+      - media_center_apps
+    restart: unless-stopped
+
+  qbittorrent:
+    container_name: "qbittorrent"
+    image: "lscr.io/linuxserver/qbittorrent:${ARCH}-latest"
+    entrypoint: ["/init"]
+    env_file:
+      - stack.env
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - WEBUI_PORT=8080
+      - TORRENTING_PORT=6881
+      - TZ=${TZ}
+    volumes:
+      - "${QBITTORRENT_CONFIG}:/config"
+      - "media_center_media:${CONTAINER_MEDIA_PATH}"
+      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - "${QBITTORRENT_TEMP}:/temp"
+    networks:
+      - media_center_apps
+    restart: unless-stopped
+
+  radarr:
+    container_name: "radarr"
+    image: "linuxserver/radarr:${ARCH}-develop"
+    entrypoint: ["/init"]
+    env_file:
+      - stack.env
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - "${RADARR_CONFIG}:/config"
+      - "media_center_media:${CONTAINER_MEDIA_PATH}"
+      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+    networks:
+      - media_center_apps
+    restart: unless-stopped
+
+  sabnzbd:
+    container_name: "sabnzbd"
+    image: "lscr.io/linuxserver/sabnzbd:${ARCH}-latest"
+    entrypoint: ["/init"]
+    env_file:
+      - stack.env
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - "${SABNZBD_CONFIG}:/config"
+      - "media_center_media:${CONTAINER_MEDIA_PATH}"
+      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+      - "${SABNZBD_TEMP}:/temp"
+    networks:
+      - media_center_apps
+    restart: unless-stopped
+
+  sonarr:
+    container_name: "sonarr"
+    image: "linuxserver/sonarr:${ARCH}-develop"
+    entrypoint: ["/init"]
+    env_file:
+      - stack.env
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - "${SONARR_CONFIG}:/config"
+      - "media_center_media:${CONTAINER_MEDIA_PATH}"
+      - "media_center_media:${CONTAINER_MEDIA_PATH_LEGACY}"
+    networks:
+      - media_center_apps
+    restart: unless-stopped
+
+  cloudflared:
+    container_name: "media_center_cloudflared"
+    image: "cloudflare/cloudflared:latest"
+    entrypoint: ["cloudflared", "--no-autoupdate"]
+    command: ["tunnel", "run"]
+    env_file:
+      - stack.env
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN}
+    networks:
+      - media_center_apps
+    restart: always
+
+  jellystat:
+    container_name: "jellystat"
+    image: "cyfershepard/jellystat:latest"
+    env_file:
+      - stack.env
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - JELLYSTAT_JELLYFIN_URL=${JELLYFIN_SERVER_URL}
+    volumes:
+      - "${JELLYSTAT_CONFIG}:/app/data"
+    networks:
+      - media_center_apps
+    restart: unless-stopped
+
+networks:
+  media_center_apps:
+    name: "${MEDIA_CENTER_NETWORK}"
+  home_iot:
+    external: true
+    name: "${HOME_IOT_NETWORK}"
+
+volumes:
+  media_center_media:
+    external: true
+    name: "${MEDIA_VOLUME_NAME}"
