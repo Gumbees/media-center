@@ -161,4 +161,20 @@ The stack uses two Docker networks:
 
 ## Support
 
-For issues and feature requests, please open an issue in the repository. 
+For issues and feature requests, please open an issue in the repository.
+
+## Further Tips from Contributors
+
+### GUI Deployment with Portainer (by Gumbee)
+
+For those preferring a more graphical approach to deployment, Portainer is recommended:
+
+1. Install and set up Portainer on your system
+2. When adding a new stack in Portainer:
+   - Copy the contents of `stack.env.example` into "Environment → Advanced"
+   - Update the environment variables as needed
+   - Either:
+     - Copy and paste the `docker-compose.yml` content directly into the stack
+     - Or link Portainer to this repository (or your fork)
+
+This method provides a user-friendly interface for managing your media center stack and its environment variables. 
