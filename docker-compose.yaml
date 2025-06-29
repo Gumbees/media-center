@@ -7,7 +7,7 @@ version: "3.8"
 services:
   bazarr:
     container_name: "${CONTAINER_NAME_PREFIX}_bazarr"
-    image: "lscr.io/linuxserver/bazarr:${ARCH}-latest"
+    image: "lscr.io/linuxserver/bazarr:latest"
     entrypoint: ["/init"]
     environment:
       - PGID=${PGID}
@@ -113,7 +113,7 @@ services:
 
   qbittorrent:
     container_name: "${CONTAINER_NAME_PREFIX}_qbittorrent"
-    image: "lscr.io/linuxserver/qbittorrent:${ARCH}-latest"
+    image: "lscr.io/linuxserver/qbittorrent:latest"
     entrypoint: ["/init"]
     environment:
       - PUID=${PUID}
@@ -133,7 +133,7 @@ services:
 
   radarr:
     container_name: "${CONTAINER_NAME_PREFIX}_radarr"
-    image: "linuxserver/radarr:${ARCH}-develop"
+    image: "lscr.io/linuxserver/radarr:develop"
     entrypoint: ["/init"]
     environment:
       - PUID=${PUID}
@@ -150,7 +150,7 @@ services:
 
   sabnzbd:
     container_name: "${CONTAINER_NAME_PREFIX}_sabnzbd"
-    image: "lscr.io/linuxserver/sabnzbd:${ARCH}-latest"
+    image: "lscr.io/linuxserver/sabnzbd:latest"
     entrypoint: ["/init"]
     environment:
       - PUID=${PUID}
@@ -168,7 +168,7 @@ services:
 
   sonarr:
     container_name: "${CONTAINER_NAME_PREFIX}_sonarr"
-    image: "linuxserver/sonarr:${ARCH}-develop"
+    image: "lscr.io/linuxserver/sonarr:develop"
     entrypoint: ["/init"]
     environment:
       - PUID=${PUID}
