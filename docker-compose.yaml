@@ -58,7 +58,7 @@ services:
       - media_center_apps
     
   readarr:
-    image: lscr.io/linuxserver/readarr:develop
+    image: lscr.io/linuxserver/readarr:latest
     container_name: "${CONTAINER_NAME_PREFIX}_readarr"
     environment:
       - PUID=${PUID}
@@ -156,7 +156,7 @@ services:
 
   radarr:
     container_name: "${CONTAINER_NAME_PREFIX}_radarr"
-    image: "lscr.io/linuxserver/radarr:develop"
+    image: "lscr.io/linuxserver/radarr:latest"
     entrypoint: ["/init"]
     environment:
       - PUID=${PUID}
@@ -191,7 +191,7 @@ services:
 
   sonarr:
     container_name: "${CONTAINER_NAME_PREFIX}_sonarr"
-    image: "lscr.io/linuxserver/sonarr:develop"
+    image: "lscr.io/linuxserver/sonarr:latest"
     entrypoint: ["/init"]
     environment:
       - PUID=${PUID}
