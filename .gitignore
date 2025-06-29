@@ -2,7 +2,7 @@
 stack.env
 .env
 .env.*
-!stack.env.example
+!.env.example
 
 # Operating System Files
 .DS_Store

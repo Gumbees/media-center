@@ -1,33 +1,20 @@
-# This is the base configuration file that uses external volumes by default.
-# For local storage options, use the appropriate docker-compose.local-*.yaml files
+# This is the base configuration file that creates local volumes for all containers.
+# Environment variables are loaded from .env file by default
 # See DEVELOPMENT.md for detailed documentation
 
 version: "3.8"
-
-x-volume-local: &volume-local
-  driver: local
-  driver_opts:
-    type: none
-    o: bind
-    device: ${MEDIA_BASE}
-
-x-volume-external: &volume-external
-  external: true
-  name: ${MEDIA_VOLUME_NAME}
 
 services:
   bazarr:
     container_name: "${CONTAINER_NAME_PREFIX}_bazarr"
     image: "lscr.io/linuxserver/bazarr:${ARCH}-latest"
     entrypoint: ["/init"]
-    env_file:
-      - stack.env
     environment:
       - PGID=${PGID}
       - PUID=${PUID}
       - TZ=${TZ}
     volumes:
-      - "${CONFIG_BASE}/bazarr:/config"
+      - "bazarr_config_volume:/config"
       - "media_volume:${CONTAINER_MEDIA_PATH}:ro"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}:ro"
     networks:
@@ -38,8 +25,6 @@ services:
   calibre_web:
     image: lscr.io/linuxserver/calibre-web:latest
     container_name: "${CONTAINER_NAME_PREFIX}_calibre_web"
-    env_file:
-      - stack.env
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -47,7 +32,7 @@ services:
     networks:
       - media_center_apps
     volumes:
-      - "${CONFIG_BASE}/calibre-web:/config"
+      - "calibre_web_config_volume:/config"
       - "media_volume:${CONTAINER_MEDIA_PATH}:ro"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}:ro"
     restart: unless-stopped
@@ -55,14 +40,12 @@ services:
   calibre:
     image: lscr.io/linuxserver/calibre:latest
     container_name: "${CONTAINER_NAME_PREFIX}_calibre"
-    env_file:
-      - stack.env
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
     volumes:
-      - "${CONFIG_BASE}/calibre:/config"
+      - "calibre_config_volume:/config"
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     restart: unless-stopped
@@ -72,8 +55,6 @@ services:
   readarr:
     image: lscr.io/linuxserver/readarr:develop
     container_name: "${CONTAINER_NAME_PREFIX}_readarr"
-    env_file:
-      - stack.env
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -82,18 +63,16 @@ services:
       - media_center_apps
       - container_pia_internet
     volumes:
-      - "${CONFIG_BASE}/readarr:/config"
+      - "readarr_config_volume:/config"
       - "media_volume:${CONTAINER_MEDIA_PATH}:ro"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}:ro"
-      - "${TEMP_BASE}/readarr:/downloads"
+      - "temp_volume:/downloads/readarr"
     restart: unless-stopped
 
   jellyfin:
     container_name: "${CONTAINER_NAME_PREFIX}_jellyfin"
     image: "jellyfin/jellyfin"
     entrypoint: ["/jellyfin/jellyfin"]
-    env_file:
-      - stack.env
     environment:
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
       - TZ=${TZ}
@@ -104,8 +83,8 @@ services:
       - ${ROCKCHIP_DEVICE_RGA}
       - ${ROCKCHIP_DEVICE_MPP}
     volumes:
-      - "${CONFIG_BASE}/jellyfin-data:/config"
-      - "${TEMP_BASE}/jellyfin:/cache"
+      - "jellyfin_config_volume:/config"
+      - "temp_volume:/cache/jellyfin"
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
@@ -121,14 +100,12 @@ services:
     image: "fallenbagel/jellyseerr:latest"
     entrypoint: ["/sbin/tini", "--"]
     command: ["pnpm", "start"]
-    env_file:
-      - stack.env
     environment:
       - TZ=${TZ}
       - PORT=${JELLYFIN_PORT}
       - LOG_LEVEL=${JELLYFIN_LOG_LEVEL}
     volumes:
-      - "${CONFIG_BASE}/jellyseerr:/app/config"
+      - "jellyseerr_config_volume:/app/config"
     networks:
       - media_center_apps
       - container_pia_internet
@@ -138,8 +115,6 @@ services:
     container_name: "${CONTAINER_NAME_PREFIX}_qbittorrent"
     image: "lscr.io/linuxserver/qbittorrent:${ARCH}-latest"
     entrypoint: ["/init"]
-    env_file:
-      - stack.env
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -147,10 +122,10 @@ services:
       - TORRENTING_PORT=6881
       - TZ=${TZ}
     volumes:
-      - "${CONFIG_BASE}/qbittorrent:/config"
+      - "qbittorrent_config_volume:/config"
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-      - "${TEMP_BASE}/qbittorrent:/temp"
+      - "temp_volume:/temp/qbittorrent"
     networks:
       - media_center_apps
       - container_pia_internet
@@ -160,14 +135,12 @@ services:
     container_name: "${CONTAINER_NAME_PREFIX}_radarr"
     image: "linuxserver/radarr:${ARCH}-develop"
     entrypoint: ["/init"]
-    env_file:
-      - stack.env
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
     volumes:
-      - "${CONFIG_BASE}/radarr:/config"
+      - "radarr_config_volume:/config"
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
@@ -179,17 +152,15 @@ services:
     container_name: "${CONTAINER_NAME_PREFIX}_sabnzbd"
     image: "lscr.io/linuxserver/sabnzbd:${ARCH}-latest"
     entrypoint: ["/init"]
-    env_file:
-      - stack.env
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
     volumes:
-      - "${CONFIG_BASE}/sabnzbd:/config"
+      - "sabnzbd_config_volume:/config"
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-      - "${TEMP_BASE}/sabnzbd:/temp"
+      - "temp_volume:/temp/sabnzbd"
     networks:
       - media_center_apps
       - container_pia_internet
@@ -199,14 +170,12 @@ services:
     container_name: "${CONTAINER_NAME_PREFIX}_sonarr"
     image: "linuxserver/sonarr:${ARCH}-develop"
     entrypoint: ["/init"]
-    env_file:
-      - stack.env
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
     volumes:
-      - "${CONFIG_BASE}/sonarr:/config"
+      - "sonarr_config_volume:/config"
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
@@ -219,8 +188,6 @@ services:
     image: "cloudflare/cloudflared:latest"
     entrypoint: ["cloudflared", "--no-autoupdate"]
     command: ["tunnel", "run"]
-    env_file:
-      - stack.env
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN}
     networks:
@@ -239,8 +206,6 @@ services:
   jellystat:
     container_name: "${CONTAINER_NAME_PREFIX}_jellystat"
     image: "cyfershepard/jellystat:latest"
-    env_file:
-      - stack.env
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
@@ -252,7 +217,7 @@ services:
       - POSTGRES_PORT=5432
       - JWT_SECRET=${JELLYSTAT_JWT_SECRET}
     volumes:
-      - "${CONFIG_BASE}/jellystat:/app/data"
+      - "jellystat_config_volume:/app/data"
       - "jellystat_backup:/app/backend/backup-data"
     networks:
       - media_center_apps
@@ -266,8 +231,6 @@ services:
     container_name: "${CONTAINER_NAME_PREFIX}_jellystat_db"
     image: "postgres:15.2"
     shm_size: 1gb
-    env_file:
-      - stack.env
     environment:
       - POSTGRES_USER=${JELLYSTAT_DB_USER}
       - POSTGRES_PASSWORD=${JELLYSTAT_DB_PASSWORD}
@@ -313,16 +276,127 @@ networks:
     driver: bridge
 
 volumes:
+  # Media volume - shared across all services
   media_volume:
-    external: true
-    name: ${MEDIA_VOLUME_NAME}
-  config_volume:
-    external: ${ENABLE_EXTERNAL_CONFIG_VOLUME:-true}
-    name: ${CONFIG_VOLUME_NAME}
+    name: "${CONTAINER_NAME_PREFIX}_media"
+    driver: local
+    driver_opts:
+      type: ${MEDIA_VOLUME_TYPE:-}
+      o: ${MEDIA_VOLUME_OPTIONS:-}
+      device: ${MEDIA_BASE:-}
+  
+  # Temporary volume - shared for downloads and cache
   temp_volume:
-    external: ${ENABLE_EXTERNAL_TEMP_VOLUME:-true}
-    name: ${TEMP_VOLUME_NAME}
+    name: "${CONTAINER_NAME_PREFIX}_temp"
+    driver: local
+    driver_opts:
+      type: ${TEMP_VOLUME_TYPE:-}
+      o: ${TEMP_VOLUME_OPTIONS:-}
+      device: ${TEMP_BASE:-}
+  
+  # Individual service configuration volumes
+  bazarr_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_bazarr_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/bazarr
+      
+  calibre_web_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_calibre_web_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/calibre-web
+      
+  calibre_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_calibre_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/calibre
+      
+  readarr_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_readarr_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/readarr
+      
+  jellyfin_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_jellyfin_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/jellyfin-data
+      
+  jellyseerr_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_jellyseerr_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/jellyseerr
+      
+  qbittorrent_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_qbittorrent_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/qbittorrent
+      
+  radarr_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_radarr_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/radarr
+      
+  sabnzbd_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_sabnzbd_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/sabnzbd
+      
+  sonarr_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_sonarr_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/sonarr
+      
+  jellystat_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_jellystat_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/jellystat
+  
+  # Jellystat database volume
   jellystat_db:
     name: "${CONTAINER_NAME_PREFIX}_jellystat_db"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/jellystat-db
+  
+  # Jellystat backup volume
   jellystat_backup:
     name: "${CONTAINER_NAME_PREFIX}_jellystat_backup"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/jellystat-backup
