@@ -215,8 +215,9 @@ services:
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN}
     networks:
-      - media_center_apps
-      - container_internet
+      - media_center_apps  # Access to app services
+      - container_internet # Internet access for tunnel
+      # NOTE: Cloudflared does NOT connect to database networks for security
     restart: always
     deploy:
       replicas: ${ENABLE_CLOUDFLARED:-0}
@@ -244,9 +245,9 @@ services:
   #     - "jellystat_config_volume:/app/data"
   #     - "jellystat_backup:/app/backend/backup-data"
   #   networks:
-  #     - media_center_apps
-  #     - container_pia_internet
-  #     - media_center_jellystat_db_network
+  #     - media_center_apps              # Access to other app services
+  #     - container_pia_internet         # Internet access via VPN
+  #     - media_center_jellystat_db_network  # Database access
   #   depends_on:
   #     - jellystat_db
   #   restart: unless-stopped
@@ -262,9 +263,7 @@ services:
   #   volumes:
   #     - "jellystat_db:/var/lib/postgresql/data"
   #   networks:
-  #     - media_center_apps
-  #     - container_pia_internet
-  #     - media_center_jellystat_db_network
+  #     - media_center_jellystat_db_network  # ONLY database network (no internet/app access)
   #   restart: unless-stopped
   #   logging:
   #     driver: json-file
@@ -280,7 +279,7 @@ networks:
     internal: true
     driver: bridge
 
-  # External network for normal internet access (cloudflared)
+  # External network for normal internet access (cloudflared only)
   container_internet:
     external: true
     name: "containers_internet"
@@ -296,6 +295,8 @@ networks:
     name: "${HOME_IOT_NETWORK:-home_iot}"
 
   # # Isolated database network for jellystat database communication
+  # # Apps connect to both media_center_apps AND this network to access database
+  # # Database only connects to this network (no internet access)
   # media_center_jellystat_db_network:
   #   name: "${CONTAINER_NAME_PREFIX}_jellystat_db_network"
   #   internal: true
