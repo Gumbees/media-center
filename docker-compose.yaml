@@ -20,8 +20,8 @@ services:
       - TZ=${TZ}
     volumes:
       - "bazarr_config_volume:/config"
-      - "media_volume:${CONTAINER_MEDIA_PATH}:ro"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}:ro"
+      - "media_volume:${CONTAINER_MEDIA_PATH}"
+      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
       - media_center_apps
       - container_pia_internet
@@ -38,8 +38,8 @@ services:
       - media_center_apps
     volumes:
       - "calibre_web_config_volume:/config"
-      - "media_volume:${CONTAINER_MEDIA_PATH}:ro"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}:ro"
+      - "media_volume:${CONTAINER_MEDIA_PATH}"
+      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     restart: unless-stopped
 
   calibre:
@@ -69,8 +69,8 @@ services:
       - container_pia_internet
     volumes:
       - "readarr_config_volume:/config"
-      - "media_volume:${CONTAINER_MEDIA_PATH}:ro"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}:ro"
+      - "media_volume:${CONTAINER_MEDIA_PATH}"
+      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
       - "temp_volume:/downloads/readarr"
     restart: unless-stopped
 
