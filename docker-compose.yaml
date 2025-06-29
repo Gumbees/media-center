@@ -3,7 +3,7 @@
 # See DEVELOPMENT.md for detailed documentation
 #
 # ARM64 COMPATIBILITY NOTES:
-# - jellyseerr and jellystat are disabled due to lack of ARM64 support
+# - jellyseerr, jellystat, and readarr are disabled due to lack of ARM64 support
 # - overseerr is provided as an ARM64-compatible alternative to jellyseerr
 # - All other services support ARM64 architecture
 
@@ -57,22 +57,23 @@ services:
     networks:
       - media_center_apps
     
-  readarr:
-    image: lscr.io/linuxserver/readarr:latest
-    container_name: "${CONTAINER_NAME_PREFIX}_readarr"
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    networks:
-      - media_center_apps
-      - container_pia_internet
-    volumes:
-      - "readarr_config_volume:/config"
-      - "media_volume:${CONTAINER_MEDIA_PATH}"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-      - "temp_volume:/downloads/readarr"
-    restart: unless-stopped
+  # readarr:
+  #   image: lscr.io/linuxserver/readarr:latest
+  #   container_name: "${CONTAINER_NAME_PREFIX}_readarr"
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TZ}
+  #   networks:
+  #     - media_center_apps
+  #     - container_pia_internet
+  #   volumes:
+  #     - "readarr_config_volume:/config"
+  #     - "media_volume:${CONTAINER_MEDIA_PATH}"
+  #     - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
+  #     - "temp_volume:/downloads/readarr"
+  #   restart: unless-stopped
+  #   # DISABLED: No ARM64 support available
 
   jellyfin:
     container_name: "${CONTAINER_NAME_PREFIX}_jellyfin"
@@ -156,7 +157,7 @@ services:
 
   radarr:
     container_name: "${CONTAINER_NAME_PREFIX}_radarr"
-    image: "lscr.io/linuxserver/radarr:latest"
+    image: "lscr.io/linuxserver/radarr:develop"
     entrypoint: ["/init"]
     environment:
       - PUID=${PUID}
@@ -191,7 +192,7 @@ services:
 
   sonarr:
     container_name: "${CONTAINER_NAME_PREFIX}_sonarr"
-    image: "lscr.io/linuxserver/sonarr:latest"
+    image: "lscr.io/linuxserver/sonarr:develop"
     entrypoint: ["/init"]
     environment:
       - PUID=${PUID}
@@ -345,13 +346,14 @@ volumes:
       o: ${CONFIG_VOLUME_OPTIONS:-}
       device: ${CONFIG_BASE}/calibre
       
-  readarr_config_volume:
-    name: "${CONTAINER_NAME_PREFIX}_readarr_config"
-    driver: local
-    driver_opts:
-      type: ${CONFIG_VOLUME_TYPE:-}
-      o: ${CONFIG_VOLUME_OPTIONS:-}
-      device: ${CONFIG_BASE}/readarr
+  # readarr_config_volume:
+  #   name: "${CONTAINER_NAME_PREFIX}_readarr_config"
+  #   driver: local
+  #   driver_opts:
+  #     type: ${CONFIG_VOLUME_TYPE:-}
+  #     o: ${CONFIG_VOLUME_OPTIONS:-}
+  #     device: ${CONFIG_BASE}/readarr
+  #   # DISABLED: Related to readarr service
       
   jellyfin_config_volume:
     name: "${CONTAINER_NAME_PREFIX}_jellyfin_config"
