@@ -3,9 +3,9 @@
 # See DEVELOPMENT.md for detailed documentation
 #
 # ARM64 COMPATIBILITY NOTES:
-# - jellyseerr and jellystat have been temporarily disabled due to ARM64 compatibility issues
+# - jellyseerr and jellystat are disabled due to lack of ARM64 support
 # - overseerr is provided as an ARM64-compatible alternative to jellyseerr
-# - You can try re-enabling jellyseerr/jellystat by uncommenting those services if ARM64 support is added later
+# - All other services support ARM64 architecture
 
 version: "3.8"
 
@@ -76,11 +76,12 @@ services:
 
   jellyfin:
     container_name: "${CONTAINER_NAME_PREFIX}_jellyfin"
-    image: "jellyfin/jellyfin"
-    entrypoint: ["/jellyfin/jellyfin"]
+    image: "lscr.io/linuxserver/jellyfin:latest"
     environment:
-      - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
+      - PUID=${PUID}
+      - PGID=${PGID}
       - TZ=${TZ}
+      - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
     devices:
       - ${ROCKCHIP_DEVICE_DRI}
       - ${ROCKCHIP_DEVICE_DMA_HEAP}
