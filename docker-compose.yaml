@@ -96,7 +96,7 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
       media_center_apps:
-      container_pia_internet:
+      container_internet:
       home_iot:
         ipv4_address: ${JELLYFIN_IP}
     privileged: ${ENABLE_ROCKCHIP_ACCELERATION}
