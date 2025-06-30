@@ -98,6 +98,7 @@ services:
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
     group_add:
       - "44"  # host “video” group id – lets Jellyfin open the devices
+      - "107"  # host “render” group id – lets Jellyfin open the devices
     privileged: true
     devices:
       - '/dev/dri:/dev/dri'
