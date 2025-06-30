@@ -114,7 +114,9 @@ services:
       container_internet:
       home_iot:
         ipv4_address: ${JELLYFIN_IP}
-    privileged: ${ENABLE_ROCKCHIP_ACCELERATION}
+    security_opt: # enables full access to /sys and /proc, still far better than privileged: true
+      - systempaths=unconfined
+      - apparmor=unconfined
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
