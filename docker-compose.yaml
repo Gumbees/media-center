@@ -98,10 +98,6 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
-    group_add:
-      - video
-      - render
-      - rga
     privileged: true       # host “video” group id – lets Jellyfin open the devices
     devices:
       - '/dev/dri:/dev/dri'
