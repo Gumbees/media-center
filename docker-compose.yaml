@@ -26,6 +26,12 @@ services:
       - media_center_apps
       - container_pia_internet
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bazarr.rule=Host(`bazarr.media.bierlysmith.com`)"
+      - "traefik.http.routers.bazarr.entrypoints=web"
+      - "traefik.http.routers.bazarr.tls=true"
+      - "traefik.http.services.bazarr.loadbalancer.server.port=6767"
 
   calibre_web:
     image: lscr.io/linuxserver/calibre-web:latest
@@ -41,6 +47,12 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.calibre-web.rule=Host(`calibre-web.media.bierlysmith.com`)"
+      - "traefik.http.routers.calibre-web.entrypoints=web"
+      - "traefik.http.routers.calibre-web.tls=true"
+      - "traefik.http.services.calibre-web.loadbalancer.server.port=8083"
 
   calibre:
     image: lscr.io/linuxserver/calibre:latest
@@ -56,6 +68,12 @@ services:
     restart: unless-stopped
     networks:
       - media_center_apps
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.calibre.rule=Host(`calibre.media.bierlysmith.com`)"
+      - "traefik.http.routers.calibre.entrypoints=web"
+      - "traefik.http.routers.calibre.tls=true"
+      - "traefik.http.services.calibre.loadbalancer.server.port=8080"
     
   # readarr:
   #   image: lscr.io/linuxserver/readarr:latest
@@ -101,6 +119,12 @@ services:
         ipv4_address: ${JELLYFIN_IP}
     privileged: ${ENABLE_ROCKCHIP_ACCELERATION}
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jellyfin.rule=Host(`media.bierlysmith.com`)"
+      - "traefik.http.routers.jellyfin.entrypoints=web"
+      - "traefik.http.routers.jellyfin.tls=true"
+      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
 
   # jellyseerr:
   #   container_name: "${CONTAINER_NAME_PREFIX}_jellyseerr"
@@ -134,6 +158,12 @@ services:
       - media_center_apps
       - container_pia_internet
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.overseerr.rule=Host(`overseerr.media.bierlysmith.com`)"
+      - "traefik.http.routers.overseerr.entrypoints=web"
+      - "traefik.http.routers.overseerr.tls=true"
+      - "traefik.http.services.overseerr.loadbalancer.server.port=5055"
 
   qbittorrent:
     container_name: "${CONTAINER_NAME_PREFIX}_qbittorrent"
@@ -154,6 +184,12 @@ services:
       - media_center_apps
       - container_pia_internet
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.media.bierlysmith.com`)"
+      - "traefik.http.routers.qbittorrent.entrypoints=web"
+      - "traefik.http.routers.qbittorrent.tls=true"
+      - "traefik.http.services.qbittorrent.loadbalancer.server.port=8080"
 
   radarr:
     container_name: "${CONTAINER_NAME_PREFIX}_radarr"
@@ -171,6 +207,12 @@ services:
       - media_center_apps
       - container_pia_internet
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.media.bierlysmith.com`)"
+      - "traefik.http.routers.radarr.entrypoints=web"
+      - "traefik.http.routers.radarr.tls=true"
+      - "traefik.http.services.radarr.loadbalancer.server.port=7878"
 
   sabnzbd:
     container_name: "${CONTAINER_NAME_PREFIX}_sabnzbd"
@@ -189,6 +231,12 @@ services:
       - media_center_apps
       - container_pia_internet
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.media.bierlysmith.com`)"
+      - "traefik.http.routers.sabnzbd.entrypoints=web"
+      - "traefik.http.routers.sabnzbd.tls=true"
+      - "traefik.http.services.sabnzbd.loadbalancer.server.port=8080"
 
   sonarr:
     container_name: "${CONTAINER_NAME_PREFIX}_sonarr"
@@ -206,6 +254,12 @@ services:
       - media_center_apps
       - container_pia_internet
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.media.bierlysmith.com`)"
+      - "traefik.http.routers.sonarr.entrypoints=web"
+      - "traefik.http.routers.sonarr.tls=true"
+      - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
 
   cloudflared:
     container_name: "${CONTAINER_NAME_PREFIX}_cloudflared"
