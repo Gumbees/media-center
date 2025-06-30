@@ -92,13 +92,13 @@ services:
 
   jellyfin:
     container_name: "${CONTAINER_NAME_PREFIX}_jellyfin"
-    image: "lscr.io/linuxserver/jellyfin:latest"
+    image: "lscr.io/linuxserver/jellyfin:nightly"
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
-    privileged: true       # host “video” group id – lets Jellyfin open the devices
+    privileged: true
     devices:
       - '/dev/dri:/dev/dri'
       - '/dev/dma_heap:/dev/dma_heap'
