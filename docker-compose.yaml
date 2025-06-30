@@ -94,8 +94,6 @@ services:
     container_name: "${CONTAINER_NAME_PREFIX}_jellyfin"
     image: "lscr.io/linuxserver/jellyfin:nightly"
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
       - TZ=${TZ}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
     group_add:
