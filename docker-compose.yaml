@@ -93,6 +93,7 @@ services:
   jellyfin:
     container_name: "${CONTAINER_NAME_PREFIX}_jellyfin"
     image: "lscr.io/linuxserver/jellyfin:nightly"
+    user: "0:0"
     environment:
       - TZ=${TZ}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
