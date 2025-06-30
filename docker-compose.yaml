@@ -99,11 +99,11 @@ services:
       - TZ=${TZ}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
     devices:
-      - ${ROCKCHIP_DEVICE_DRI}
-      - ${ROCKCHIP_DEVICE_DMA_HEAP}
-      - ${ROCKCHIP_DEVICE_MALI}
-      - ${ROCKCHIP_DEVICE_RGA}
-      - ${ROCKCHIP_DEVICE_MPP}
+      - '/dev/dri:/dev/dri'
+      - '/dev/dma_heap:/dev/dma_heap'
+      - '/dev/mali0:/dev/mali0'
+      - '/dev/rga:/dev/rga'
+      - '/dev/mpp_service:/dev/mpp_service'
     volumes:
       - "jellyfin_config_volume:/config"
       - "temp_volume:/cache/jellyfin"
