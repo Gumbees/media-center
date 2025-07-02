@@ -135,47 +135,48 @@ services:
       - "traefik.http.routers.jellyfin.tls.certresolver=letsencrypt"
       - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
 
-  plex:
-    container_name: "${CONTAINER_NAME_PREFIX}_plex"
-    image: "plexinc/pms-docker:latest"
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-      - PLEX_CLAIM=${PLEX_CLAIM_TOKEN:-}
-      - ADVERTISE_IP=${PLEX_ADVERTISE_IP:-}
-    group_add:
-      - "44"  # host "video" group id – lets Plex open the devices
-      - "105"  # host "render" group id – lets Plex open the devices
-    privileged: true
-    devices:
-      - '/dev/dri:/dev/dri'
-      - '/dev/dma_heap:/dev/dma_heap'
-      - '/dev/mali0:/dev/mali0'
-      - '/dev/rga:/dev/rga'
-      - '/dev/mpp_service:/dev/mpp_service'
-    volumes:
-      - "plex_config_volume:/config"
-      - "temp_volume:/transcode"
-      - "media_volume:${CONTAINER_MEDIA_PATH}"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-      - /lib/firmware:/lib/firmware:ro
-    networks:
-      media_center_apps:
-      container_internet:
-      home_iot:
-        ipv4_address: 192.168.67.8
-    security_opt: # enables full access to /sys and /proc, still far better than privileged: true
-      - systempaths=unconfined
-      - apparmor=unconfined
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.plex.rule=Host(`plex.media.bierlysmith.com`)"
-      - "traefik.http.routers.plex.entrypoints=web,websecure"
-      - "traefik.http.routers.plex.tls=true"
-      - "traefik.http.routers.plex.tls.certresolver=letsencrypt"
-      - "traefik.http.services.plex.loadbalancer.server.port=32400"
+  # plex:
+  #   container_name: "${CONTAINER_NAME_PREFIX}_plex"
+  #   image: "plexinc/pms-docker:latest"
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TZ}
+  #     - PLEX_CLAIM=${PLEX_CLAIM_TOKEN:-}
+  #     - ADVERTISE_IP=${PLEX_ADVERTISE_IP:-}
+  #   group_add:
+  #     - "44"  # host "video" group id – lets Plex open the devices
+  #     - "105"  # host "render" group id – lets Plex open the devices
+  #   privileged: true
+  #   devices:
+  #     - '/dev/dri:/dev/dri'
+  #     - '/dev/dma_heap:/dev/dma_heap'
+  #     - '/dev/mali0:/dev/mali0'
+  #     - '/dev/rga:/dev/rga'
+  #     - '/dev/mpp_service:/dev/mpp_service'
+  #   volumes:
+  #     - "plex_config_volume:/config"
+  #     - "temp_volume:/transcode"
+  #     - "media_volume:${CONTAINER_MEDIA_PATH}"
+  #     - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
+  #     - /lib/firmware:/lib/firmware:ro
+  #   networks:
+  #     media_center_apps:
+  #     container_internet:
+  #     home_iot:
+  #       ipv4_address: 192.168.67.8
+  #   security_opt: # enables full access to /sys and /proc, still far better than privileged: true
+  #     - systempaths=unconfined
+  #     - apparmor=unconfined
+  #   restart: unless-stopped
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.plex.rule=Host(`plex.media.bierlysmith.com`)"
+  #     - "traefik.http.routers.plex.entrypoints=web,websecure"
+  #     - "traefik.http.routers.plex.tls=true"
+  #     - "traefik.http.routers.plex.tls.certresolver=letsencrypt"
+  #     - "traefik.http.services.plex.loadbalancer.server.port=32400"
+  #   # DISABLED: Plex media server commented out
 
   # jellyseerr:
   #   container_name: "${CONTAINER_NAME_PREFIX}_jellyseerr"
@@ -474,13 +475,14 @@ volumes:
       o: ${CONFIG_VOLUME_OPTIONS:-}
       device: ${CONFIG_BASE}/jellyfin-data
       
-  plex_config_volume:
-    name: "${CONTAINER_NAME_PREFIX}_plex_config"
-    driver: local
-    driver_opts:
-      type: ${CONFIG_VOLUME_TYPE:-}
-      o: ${CONFIG_VOLUME_OPTIONS:-}
-      device: ${CONFIG_BASE}/plex
+  # plex_config_volume:
+  #   name: "${CONTAINER_NAME_PREFIX}_plex_config"
+  #   driver: local
+  #   driver_opts:
+  #     type: ${CONFIG_VOLUME_TYPE:-}
+  #     o: ${CONFIG_VOLUME_OPTIONS:-}
+  #     device: ${CONFIG_BASE}/plex
+  #   # DISABLED: Related to plex service
       
   # jellyseerr_config_volume:
   #   name: "${CONTAINER_NAME_PREFIX}_jellyseerr_config"
