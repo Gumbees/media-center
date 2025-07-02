@@ -163,6 +163,8 @@ services:
     networks:
       media_center_apps:
       container_internet:
+      home_iot:
+        ipv4_address: 192.168.67.8
     security_opt: # enables full access to /sys and /proc, still far better than privileged: true
       - systempaths=unconfined
       - apparmor=unconfined
