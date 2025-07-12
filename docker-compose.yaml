@@ -295,11 +295,11 @@ services:
     deploy:
       replicas: ${ENABLE_CLOUDFLARED:-0}
     healthcheck:
-      test: ["CMD", "cloudflared", "tunnel", "status"]
-      interval: 120s
-      timeout: 30s
-      retries: 5
-      start_period: 60s
+      test: ["CMD", "pgrep", "cloudflared"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   # jellystat:
   #   container_name: "${CONTAINER_NAME_PREFIX}_jellystat"
