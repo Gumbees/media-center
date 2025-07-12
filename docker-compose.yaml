@@ -3,7 +3,7 @@
 # See DEVELOPMENT.md for detailed documentation
 #
 # ARM64 COMPATIBILITY NOTES:
-# - jellyseerr, jellystat, and readarr are disabled due to lack of ARM64 support
+# - jellyseerr and jellystat are disabled due to lack of ARM64 support
 # - overseerr is provided as an ARM64-compatible alternative to jellyseerr
 # - All other services support ARM64 architecture
 
@@ -28,73 +28,22 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.bazarr.rule=Host(`bazarr.media.bierlysmith.com`)"
-      - "traefik.http.routers.bazarr.entrypoints=web,websecure"
-      - "traefik.http.routers.bazarr.tls=true"
-      - "traefik.http.routers.bazarr.tls.certresolver=letsencrypt"
+      # Public domain router
+      - "traefik.http.routers.bazarr-public.rule=Host(`${BAZARR_PUBLIC_DOMAIN}`)"
+      - "traefik.http.routers.bazarr-public.entrypoints=web,websecure"
+      - "traefik.http.routers.bazarr-public.tls=true"
+      - "traefik.http.routers.bazarr-public.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.bazarr-public.service=bazarr"
+      # Private domain router
+      - "traefik.http.routers.bazarr-private.rule=Host(`${BAZARR_PRIVATE_DOMAIN}`)"
+      - "traefik.http.routers.bazarr-private.entrypoints=web,websecure"
+      - "traefik.http.routers.bazarr-private.tls=true"
+      - "traefik.http.routers.bazarr-private.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.bazarr-private.service=bazarr"
+      # Service definition
       - "traefik.http.services.bazarr.loadbalancer.server.port=6767"
 
-  calibre_web:
-    image: lscr.io/linuxserver/calibre-web:latest
-    container_name: "${CONTAINER_NAME_PREFIX}_calibre_web"
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    networks:
-      - media_center_apps
-    volumes:
-      - "calibre_web_config_volume:/config"
-      - "media_volume:${CONTAINER_MEDIA_PATH}"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.calibre-web.rule=Host(`calibre-web.media.bierlysmith.com`)"
-      - "traefik.http.routers.calibre-web.entrypoints=web,websecure"
-      - "traefik.http.routers.calibre-web.tls=true"
-      - "traefik.http.routers.calibre-web.tls.certresolver=letsencrypt"
-      - "traefik.http.services.calibre-web.loadbalancer.server.port=8083"
 
-  calibre:
-    image: lscr.io/linuxserver/calibre:latest
-    container_name: "${CONTAINER_NAME_PREFIX}_calibre"
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - "calibre_config_volume:/config"
-      - "media_volume:${CONTAINER_MEDIA_PATH}"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-    restart: unless-stopped
-    networks:
-      - media_center_apps
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.calibre.rule=Host(`calibre.media.bierlysmith.com`)"
-      - "traefik.http.routers.calibre.entrypoints=web,websecure"
-      - "traefik.http.routers.calibre.tls=true"
-      - "traefik.http.routers.calibre.tls.certresolver=letsencrypt"
-      - "traefik.http.services.calibre.loadbalancer.server.port=8080"
-    
-  # readarr:
-  #   image: lscr.io/linuxserver/readarr:latest
-  #   container_name: "${CONTAINER_NAME_PREFIX}_readarr"
-  #   environment:
-  #     - PUID=${PUID}
-  #     - PGID=${PGID}
-  #     - TZ=${TZ}
-  #   networks:
-  #     - media_center_apps
-  #     - container_pia_internet
-  #   volumes:
-  #     - "readarr_config_volume:/config"
-  #     - "media_volume:${CONTAINER_MEDIA_PATH}"
-  #     - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-  #     - "temp_volume:/downloads/readarr"
-  #   restart: unless-stopped
-  #   # DISABLED: No ARM64 support available
 
   jellyfin:
     container_name: "${CONTAINER_NAME_PREFIX}_jellyfin"
@@ -129,54 +78,22 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.jellyfin.rule=Host(`media.bierlysmith.com`)"
-      - "traefik.http.routers.jellyfin.entrypoints=web,websecure"
-      - "traefik.http.routers.jellyfin.tls=true"
-      - "traefik.http.routers.jellyfin.tls.certresolver=letsencrypt"
+      # Public domain router
+      - "traefik.http.routers.jellyfin-public.rule=Host(`${JELLYFIN_PUBLIC_DOMAIN}`)"
+      - "traefik.http.routers.jellyfin-public.entrypoints=web,websecure"
+      - "traefik.http.routers.jellyfin-public.tls=true"
+      - "traefik.http.routers.jellyfin-public.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.jellyfin-public.service=jellyfin"
+      # Private domain router
+      - "traefik.http.routers.jellyfin-private.rule=Host(`${JELLYFIN_PRIVATE_DOMAIN}`)"
+      - "traefik.http.routers.jellyfin-private.entrypoints=web,websecure"
+      - "traefik.http.routers.jellyfin-private.tls=true"
+      - "traefik.http.routers.jellyfin-private.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.jellyfin-private.service=jellyfin"
+      # Service definition
       - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
 
-  # plex:
-  #   container_name: "${CONTAINER_NAME_PREFIX}_plex"
-  #   image: "plexinc/pms-docker:latest"
-  #   environment:
-  #     - PUID=${PUID}
-  #     - PGID=${PGID}
-  #     - TZ=${TZ}
-  #     - PLEX_CLAIM=${PLEX_CLAIM_TOKEN:-}
-  #     - ADVERTISE_IP=${PLEX_ADVERTISE_IP:-}
-  #   group_add:
-  #     - "44"  # host "video" group id – lets Plex open the devices
-  #     - "105"  # host "render" group id – lets Plex open the devices
-  #   privileged: true
-  #   devices:
-  #     - '/dev/dri:/dev/dri'
-  #     - '/dev/dma_heap:/dev/dma_heap'
-  #     - '/dev/mali0:/dev/mali0'
-  #     - '/dev/rga:/dev/rga'
-  #     - '/dev/mpp_service:/dev/mpp_service'
-  #   volumes:
-  #     - "plex_config_volume:/config"
-  #     - "temp_volume:/transcode"
-  #     - "media_volume:${CONTAINER_MEDIA_PATH}"
-  #     - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-  #     - /lib/firmware:/lib/firmware:ro
-  #   networks:
-  #     media_center_apps:
-  #     container_internet:
-  #     home_iot:
-  #       ipv4_address: 192.168.67.8
-  #   security_opt: # enables full access to /sys and /proc, still far better than privileged: true
-  #     - systempaths=unconfined
-  #     - apparmor=unconfined
-  #   restart: unless-stopped
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.plex.rule=Host(`plex.media.bierlysmith.com`)"
-  #     - "traefik.http.routers.plex.entrypoints=web,websecure"
-  #     - "traefik.http.routers.plex.tls=true"
-  #     - "traefik.http.routers.plex.tls.certresolver=letsencrypt"
-  #     - "traefik.http.services.plex.loadbalancer.server.port=32400"
-  #   # DISABLED: Plex media server commented out
+
 
   # jellyseerr:
   #   container_name: "${CONTAINER_NAME_PREFIX}_jellyseerr"
@@ -212,10 +129,19 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.overseerr.rule=Host(`overseerr.media.bierlysmith.com`)"
-      - "traefik.http.routers.overseerr.entrypoints=web,websecure"
-      - "traefik.http.routers.overseerr.tls=true"
-      - "traefik.http.routers.overseerr.tls.certresolver=letsencrypt"
+      # Public domain router
+      - "traefik.http.routers.overseerr-public.rule=Host(`${OVERSEERR_PUBLIC_DOMAIN}`)"
+      - "traefik.http.routers.overseerr-public.entrypoints=web,websecure"
+      - "traefik.http.routers.overseerr-public.tls=true"
+      - "traefik.http.routers.overseerr-public.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.overseerr-public.service=overseerr"
+      # Private domain router
+      - "traefik.http.routers.overseerr-private.rule=Host(`${OVERSEERR_PRIVATE_DOMAIN}`)"
+      - "traefik.http.routers.overseerr-private.entrypoints=web,websecure"
+      - "traefik.http.routers.overseerr-private.tls=true"
+      - "traefik.http.routers.overseerr-private.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.overseerr-private.service=overseerr"
+      # Service definition
       - "traefik.http.services.overseerr.loadbalancer.server.port=5055"
 
   qbittorrent:
@@ -239,10 +165,19 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.media.bierlysmith.com`)"
-      - "traefik.http.routers.qbittorrent.entrypoints=web,websecure"
-      - "traefik.http.routers.qbittorrent.tls=true"
-      - "traefik.http.routers.qbittorrent.tls.certresolver=letsencrypt"
+      # Public domain router
+      - "traefik.http.routers.qbittorrent-public.rule=Host(`${QBITTORRENT_PUBLIC_DOMAIN}`)"
+      - "traefik.http.routers.qbittorrent-public.entrypoints=web,websecure"
+      - "traefik.http.routers.qbittorrent-public.tls=true"
+      - "traefik.http.routers.qbittorrent-public.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.qbittorrent-public.service=qbittorrent"
+      # Private domain router
+      - "traefik.http.routers.qbittorrent-private.rule=Host(`${QBITTORRENT_PRIVATE_DOMAIN}`)"
+      - "traefik.http.routers.qbittorrent-private.entrypoints=web,websecure"
+      - "traefik.http.routers.qbittorrent-private.tls=true"
+      - "traefik.http.routers.qbittorrent-private.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.qbittorrent-private.service=qbittorrent"
+      # Service definition
       - "traefik.http.services.qbittorrent.loadbalancer.server.port=8080"
 
   radarr:
@@ -263,10 +198,19 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.radarr.rule=Host(`radarr.media.bierlysmith.com`)"
-      - "traefik.http.routers.radarr.entrypoints=web,websecure"
-      - "traefik.http.routers.radarr.tls=true"
-      - "traefik.http.routers.radarr.tls.certresolver=letsencrypt"
+      # Public domain router
+      - "traefik.http.routers.radarr-public.rule=Host(`${RADARR_PUBLIC_DOMAIN}`)"
+      - "traefik.http.routers.radarr-public.entrypoints=web,websecure"
+      - "traefik.http.routers.radarr-public.tls=true"
+      - "traefik.http.routers.radarr-public.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.radarr-public.service=radarr"
+      # Private domain router
+      - "traefik.http.routers.radarr-private.rule=Host(`${RADARR_PRIVATE_DOMAIN}`)"
+      - "traefik.http.routers.radarr-private.entrypoints=web,websecure"
+      - "traefik.http.routers.radarr-private.tls=true"
+      - "traefik.http.routers.radarr-private.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.radarr-private.service=radarr"
+      # Service definition
       - "traefik.http.services.radarr.loadbalancer.server.port=7878"
 
   sabnzbd:
@@ -288,10 +232,19 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.media.bierlysmith.com`)"
-      - "traefik.http.routers.sabnzbd.entrypoints=web,websecure"
-      - "traefik.http.routers.sabnzbd.tls=true"
-      - "traefik.http.routers.sabnzbd.tls.certresolver=letsencrypt"
+      # Public domain router
+      - "traefik.http.routers.sabnzbd-public.rule=Host(`${SABNZBD_PUBLIC_DOMAIN}`)"
+      - "traefik.http.routers.sabnzbd-public.entrypoints=web,websecure"
+      - "traefik.http.routers.sabnzbd-public.tls=true"
+      - "traefik.http.routers.sabnzbd-public.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.sabnzbd-public.service=sabnzbd"
+      # Private domain router
+      - "traefik.http.routers.sabnzbd-private.rule=Host(`${SABNZBD_PRIVATE_DOMAIN}`)"
+      - "traefik.http.routers.sabnzbd-private.entrypoints=web,websecure"
+      - "traefik.http.routers.sabnzbd-private.tls=true"
+      - "traefik.http.routers.sabnzbd-private.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.sabnzbd-private.service=sabnzbd"
+      # Service definition
       - "traefik.http.services.sabnzbd.loadbalancer.server.port=8080"
 
   sonarr:
@@ -312,10 +265,19 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.sonarr.rule=Host(`sonarr.media.bierlysmith.com`)"
-      - "traefik.http.routers.sonarr.entrypoints=web,websecure"
-      - "traefik.http.routers.sonarr.tls=true"
-      - "traefik.http.routers.sonarr.tls.certresolver=letsencrypt"
+      # Public domain router
+      - "traefik.http.routers.sonarr-public.rule=Host(`${SONARR_PUBLIC_DOMAIN}`)"
+      - "traefik.http.routers.sonarr-public.entrypoints=web,websecure"
+      - "traefik.http.routers.sonarr-public.tls=true"
+      - "traefik.http.routers.sonarr-public.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.sonarr-public.service=sonarr"
+      # Private domain router
+      - "traefik.http.routers.sonarr-private.rule=Host(`${SONARR_PRIVATE_DOMAIN}`)"
+      - "traefik.http.routers.sonarr-private.entrypoints=web,websecure"
+      - "traefik.http.routers.sonarr-private.tls=true"
+      - "traefik.http.routers.sonarr-private.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.sonarr-private.service=sonarr"
+      # Service definition
       - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
 
   cloudflared:
@@ -442,30 +404,7 @@ volumes:
       o: ${CONFIG_VOLUME_OPTIONS:-}
       device: ${CONFIG_BASE}/bazarr
       
-  calibre_web_config_volume:
-    name: "${CONTAINER_NAME_PREFIX}_calibre_web_config"
-    driver: local
-    driver_opts:
-      type: ${CONFIG_VOLUME_TYPE:-}
-      o: ${CONFIG_VOLUME_OPTIONS:-}
-      device: ${CONFIG_BASE}/calibre-web
-      
-  calibre_config_volume:
-    name: "${CONTAINER_NAME_PREFIX}_calibre_config"
-    driver: local
-    driver_opts:
-      type: ${CONFIG_VOLUME_TYPE:-}
-      o: ${CONFIG_VOLUME_OPTIONS:-}
-      device: ${CONFIG_BASE}/calibre
-      
-  # readarr_config_volume:
-  #   name: "${CONTAINER_NAME_PREFIX}_readarr_config"
-  #   driver: local
-  #   driver_opts:
-  #     type: ${CONFIG_VOLUME_TYPE:-}
-  #     o: ${CONFIG_VOLUME_OPTIONS:-}
-  #     device: ${CONFIG_BASE}/readarr
-  #   # DISABLED: Related to readarr service
+
       
   jellyfin_config_volume:
     name: "${CONTAINER_NAME_PREFIX}_jellyfin_config"
@@ -475,14 +414,7 @@ volumes:
       o: ${CONFIG_VOLUME_OPTIONS:-}
       device: ${CONFIG_BASE}/jellyfin-data
       
-  # plex_config_volume:
-  #   name: "${CONTAINER_NAME_PREFIX}_plex_config"
-  #   driver: local
-  #   driver_opts:
-  #     type: ${CONFIG_VOLUME_TYPE:-}
-  #     o: ${CONFIG_VOLUME_OPTIONS:-}
-  #     device: ${CONFIG_BASE}/plex
-  #   # DISABLED: Related to plex service
+
       
   # jellyseerr_config_volume:
   #   name: "${CONTAINER_NAME_PREFIX}_jellyseerr_config"
