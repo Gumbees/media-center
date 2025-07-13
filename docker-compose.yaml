@@ -301,6 +301,45 @@ services:
       retries: 3
       start_period: 30s
 
+  whisper:
+    container_name: "${CONTAINER_NAME_PREFIX}_whisper"
+    image: "onerahmet/openai-whisper-asr-webservice:${WHISPER_IMAGE_TAG:-latest}"
+    environment:
+      - ASR_MODEL=${WHISPER_MODEL:-small}
+      - ASR_ENGINE=${WHISPER_ENGINE:-openai_whisper}
+      - ASR_DEVICE=${WHISPER_DEVICE:-cpu}
+      - MODEL_IDLE_TIMEOUT=${WHISPER_IDLE_TIMEOUT:-300}
+    volumes:
+      - "whisper_cache_volume:/root/.cache"
+    networks:
+      - media_center_apps
+      - container_internet
+    restart: unless-stopped
+    # For GPU support, uncomment the following lines and set WHISPER_DEVICE=cuda, WHISPER_IMAGE_TAG=latest-gpu:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    labels:
+      - "traefik.enable=true"
+      # Public domain router
+      - "traefik.http.routers.whisper-public.rule=Host(`${WHISPER_PUBLIC_DOMAIN}`)"
+      - "traefik.http.routers.whisper-public.entrypoints=web,websecure"
+      - "traefik.http.routers.whisper-public.tls=true"
+      - "traefik.http.routers.whisper-public.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.whisper-public.service=whisper"
+      # Private domain router
+      - "traefik.http.routers.whisper-private.rule=Host(`${WHISPER_PRIVATE_DOMAIN}`)"
+      - "traefik.http.routers.whisper-private.entrypoints=web,websecure"
+      - "traefik.http.routers.whisper-private.tls=true"
+      - "traefik.http.routers.whisper-private.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.whisper-private.service=whisper"
+      # Service definition
+      - "traefik.http.services.whisper.loadbalancer.server.port=9000"
+
   # jellystat:
   #   container_name: "${CONTAINER_NAME_PREFIX}_jellystat"
   #   image: "cyfershepard/jellystat:latest"
@@ -465,6 +504,14 @@ volumes:
       type: ${CONFIG_VOLUME_TYPE:-}
       o: ${CONFIG_VOLUME_OPTIONS:-}
       device: ${CONFIG_BASE}/sonarr
+      
+  whisper_cache_volume:
+    name: "${CONTAINER_NAME_PREFIX}_whisper_cache"
+    driver: local
+    driver_opts:
+      type: ${TEMP_VOLUME_TYPE:-}
+      o: ${TEMP_VOLUME_OPTIONS:-}
+      device: ${TEMP_BASE}/whisper/cache
       
   # jellystat_config_volume:
   #   name: "${CONTAINER_NAME_PREFIX}_jellystat_config"
