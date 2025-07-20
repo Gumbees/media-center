@@ -295,7 +295,7 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
       - media_center_apps
-      - container_pia_internet
+      - container_internet
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
