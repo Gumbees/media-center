@@ -5,6 +5,7 @@
 # ARM64 COMPATIBILITY NOTES:
 # - jellyseerr and jellystat are disabled due to lack of ARM64 support
 # - overseerr is provided as an ARM64-compatible alternative to jellyseerr
+# - lidarr uses blampe/lidarr image as workaround for MusicBrainz outage
 # - All other services support ARM64 architecture
 
 version: "3.8"
@@ -282,7 +283,7 @@ services:
 
   lidarr:
     container_name: "${CONTAINER_NAME_PREFIX}_lidarr"
-    image: "lscr.io/linuxserver/lidarr:latest"
+    image: "blampe/lidarr:latest"
     entrypoint: ["/init"]
     environment:
       - PUID=${PUID}

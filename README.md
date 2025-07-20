@@ -236,6 +236,27 @@ The stack uses two Docker networks:
 - `media_center_apps`: Internal network for service communication
 - `home_iot`: External network for home integration
 
+## Known Issues & Workarounds
+
+### Lidarr MusicBrainz Outage
+
+**Issue**: Lidarr's official MusicBrainz metadata service has been down for several months, causing music metadata lookups to fail.
+
+**Solution**: This stack uses the community-maintained [`blampe/lidarr`](https://github.com/blampe/hearring-aid) Docker image, which includes a workaround that redirects metadata queries to the hosted `api.musicinfo.pro` service.
+
+**What it does**:
+- Derives from the official LinuxServer Lidarr image
+- Adds a small nginx proxy that redirects metadata queries to `api.musicinfo.pro`
+- Provides seamless music metadata functionality while the official service is down
+- No configuration changes required - it works out of the box
+
+**Source**: [hearring-aid project](https://github.com/blampe/hearring-aid?tab=readme-ov-file) by [@blampe](https://github.com/blampe)
+
+**Alternative**: If you prefer to use the official image with manual configuration, you can insert the following into your Lidarr database:
+```sql
+sqlite> INSERT INTO Config (Key, Value) VALUES ('metadatasource', 'https://api.musicinfo.pro/api/v0.4/');
+```
+
 ## Support
 
 For issues and feature requests, please open an issue in the repository.
