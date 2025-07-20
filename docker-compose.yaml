@@ -280,6 +280,39 @@ services:
       # Service definition
       - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
 
+  lidarr:
+    container_name: "${CONTAINER_NAME_PREFIX}_lidarr"
+    image: "lscr.io/linuxserver/lidarr:develop"
+    entrypoint: ["/init"]
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - "lidarr_config_volume:/config"
+      - "media_volume:${CONTAINER_MEDIA_PATH}"
+      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
+    networks:
+      - media_center_apps
+      - container_pia_internet
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      # Public domain router
+      - "traefik.http.routers.lidarr-public.rule=Host(`${LIDARR_PUBLIC_DOMAIN}`)"
+      - "traefik.http.routers.lidarr-public.entrypoints=web,websecure"
+      - "traefik.http.routers.lidarr-public.tls=true"
+      - "traefik.http.routers.lidarr-public.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.lidarr-public.service=lidarr"
+      # Private domain router
+      - "traefik.http.routers.lidarr-private.rule=Host(`${LIDARR_PRIVATE_DOMAIN}`)"
+      - "traefik.http.routers.lidarr-private.entrypoints=web,websecure"
+      - "traefik.http.routers.lidarr-private.tls=true"
+      - "traefik.http.routers.lidarr-private.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.lidarr-private.service=lidarr"
+      # Service definition
+      - "traefik.http.services.lidarr.loadbalancer.server.port=8686"
+
   cloudflared:
     container_name: "${CONTAINER_NAME_PREFIX}_cloudflared"
     image: "cloudflare/cloudflared:latest"
@@ -504,6 +537,14 @@ volumes:
       type: ${CONFIG_VOLUME_TYPE:-}
       o: ${CONFIG_VOLUME_OPTIONS:-}
       device: ${CONFIG_BASE}/sonarr
+      
+  lidarr_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_lidarr_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/lidarr
       
   whisper_cache_volume:
     name: "${CONTAINER_NAME_PREFIX}_whisper_cache"
