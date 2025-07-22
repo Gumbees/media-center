@@ -337,14 +337,19 @@ services:
 
   whisper:
     container_name: "${CONTAINER_NAME_PREFIX}_whisper"
+    # ARM64-optimized for Orange Pi 5 / RK3588 with better performance
     image: "onerahmet/openai-whisper-asr-webservice:${WHISPER_IMAGE_TAG:-latest}"
     environment:
-      - ASR_MODEL=${WHISPER_MODEL:-small}
-      - ASR_ENGINE=${WHISPER_ENGINE:-openai_whisper}
+      - ASR_MODEL=${WHISPER_MODEL:-base}  # base model for better balance on ARM64
+      - ASR_ENGINE=${WHISPER_ENGINE:-faster_whisper}  # faster_whisper for ARM optimization
       - ASR_DEVICE=${WHISPER_DEVICE:-cpu}
       - MODEL_IDLE_TIMEOUT=${WHISPER_IDLE_TIMEOUT:-300}
     volumes:
       - "whisper_cache_volume:/root/.cache"
+    # Optimize CPU usage for RK3588 (use big cores for better performance)
+    cpuset: "4-7"
+    sysctls:
+      - net.core.somaxconn=1024
     networks:
       - media_center_apps
       - container_internet
