@@ -24,6 +24,7 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
+      - proxy
       - media_center_apps
       - container_pia_internet
     restart: unless-stopped
@@ -71,6 +72,7 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
       - /lib/firmware:/lib/firmware:ro
     networks:
+      proxy:
       media_center_apps:
       container_internet:
     security_opt: # enables full access to /sys and /proc, still far better than privileged: true
@@ -125,6 +127,7 @@ services:
     volumes:
       - "overseerr_config_volume:/config"
     networks:
+      - proxy
       - media_center_apps
       - container_pia_internet
     restart: unless-stopped
@@ -161,6 +164,7 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
       - "temp_volume:/temp/qbittorrent"
     networks:
+      - proxy
       - media_center_apps
       - container_pia_internet
     restart: unless-stopped
@@ -194,6 +198,7 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
+      - proxy
       - media_center_apps
       - container_pia_internet
     restart: unless-stopped
@@ -228,6 +233,7 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
       - "temp_volume:/temp"
     networks:
+      - proxy
       - media_center_apps
       - container_pia_internet
     restart: unless-stopped
@@ -261,6 +267,7 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
+      - proxy
       - media_center_apps
       - container_pia_internet
     restart: unless-stopped
@@ -294,6 +301,7 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
+      - proxy
       - media_center_apps
       - container_internet
     restart: unless-stopped
@@ -424,6 +432,11 @@ services:
   #   # DISABLED: Related to jellystat service
 
 networks:
+  # External proxy network for reverse proxy access to user-facing services
+  proxy:
+    external: true
+    name: "proxy"
+
   # Internal isolated network for inter-service communication (no internet access)
   media_center_apps:
     name: "${MEDIA_CENTER_NETWORK}"
