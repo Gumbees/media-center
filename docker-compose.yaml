@@ -98,34 +98,17 @@ services:
 
 
 
-  # jellyseerr:
-  #   container_name: "${CONTAINER_NAME_PREFIX}_jellyseerr"
-  #   image: "fallenbagel/jellyseerr:latest"
-  #   entrypoint: ["/sbin/tini", "--"]
-  #   command: ["pnpm", "start"]
-  #   environment:
-  #     - TZ=${TZ}
-  #     - PORT=${JELLYFIN_PORT}
-  #     - LOG_LEVEL=${JELLYFIN_LOG_LEVEL}
-  #   volumes:
-  #     - "jellyseerr_config_volume:/app/config"
-  #   networks:
-  #     - media_center_apps
-  #     - container_pia_internet
-  #   restart: unless-stopped
-  #   # DISABLED: This image may not have ARM64 support
-  #   # You can try uncommenting and testing, or use overseerr as an alternative
-
-  # ARM64-compatible alternative to jellyseerr:
-  overseerr:
-    container_name: "${CONTAINER_NAME_PREFIX}_overseerr"
-    image: "lscr.io/linuxserver/overseerr:latest"
+  jellyseerr:
+    container_name: "${CONTAINER_NAME_PREFIX}_jellyseerr"
+    image: "fallenbagel/jellyseerr:latest"
+    entrypoint: ["/sbin/tini", "--"]
+    command: ["pnpm", "start"]
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
       - TZ=${TZ}
+      - PORT=${JELLYSEERR_PORT:-5055}
+      - LOG_LEVEL=${JELLYSEERR_LOG_LEVEL:-info}
     volumes:
-      - "overseerr_config_volume:/config"
+      - "jellyseerr_config_volume:/app/config"
     networks:
       - proxy
       - media_center_apps
@@ -134,19 +117,51 @@ services:
     labels:
       - "traefik.enable=true"
       # Public domain router
-      - "traefik.http.routers.overseerr-public.rule=Host(`${OVERSEERR_PUBLIC_DOMAIN}`)"
-      - "traefik.http.routers.overseerr-public.entrypoints=web,websecure"
-      - "traefik.http.routers.overseerr-public.tls=true"
-      - "traefik.http.routers.overseerr-public.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.overseerr-public.service=overseerr"
+      - "traefik.http.routers.jellyseerr-public.rule=Host(`${JELLYSEERR_PUBLIC_DOMAIN}`)"
+      - "traefik.http.routers.jellyseerr-public.entrypoints=web,websecure"
+      - "traefik.http.routers.jellyseerr-public.tls=true"
+      - "traefik.http.routers.jellyseerr-public.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.jellyseerr-public.service=jellyseerr"
       # Private domain router
-      - "traefik.http.routers.overseerr-private.rule=Host(`${OVERSEERR_PRIVATE_DOMAIN}`)"
-      - "traefik.http.routers.overseerr-private.entrypoints=web,websecure"
-      - "traefik.http.routers.overseerr-private.tls=true"
-      - "traefik.http.routers.overseerr-private.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.overseerr-private.service=overseerr"
+      - "traefik.http.routers.jellyseerr-private.rule=Host(`${JELLYSEERR_PRIVATE_DOMAIN}`)"
+      - "traefik.http.routers.jellyseerr-private.entrypoints=web,websecure"
+      - "traefik.http.routers.jellyseerr-private.tls=true"
+      - "traefik.http.routers.jellyseerr-private.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.jellyseerr-private.service=jellyseerr"
       # Service definition
-      - "traefik.http.services.overseerr.loadbalancer.server.port=5055"
+      - "traefik.http.services.jellyseerr.loadbalancer.server.port=5055"
+
+  # overseerr:
+  #   container_name: "${CONTAINER_NAME_PREFIX}_overseerr"
+  #   image: "lscr.io/linuxserver/overseerr:latest"
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TZ}
+  #   volumes:
+  #     - "overseerr_config_volume:/config"
+  #   networks:
+  #     - proxy
+  #     - media_center_apps
+  #     - container_pia_internet
+  #   restart: unless-stopped
+  #   labels:
+  #     - "traefik.enable=true"
+  #     # Public domain router
+  #     - "traefik.http.routers.overseerr-public.rule=Host(`${OVERSEERR_PUBLIC_DOMAIN}`)"
+  #     - "traefik.http.routers.overseerr-public.entrypoints=web,websecure"
+  #     - "traefik.http.routers.overseerr-public.tls=true"
+  #     - "traefik.http.routers.overseerr-public.tls.certresolver=letsencrypt"
+  #     - "traefik.http.routers.overseerr-public.service=overseerr"
+  #     # Private domain router
+  #     - "traefik.http.routers.overseerr-private.rule=Host(`${OVERSEERR_PRIVATE_DOMAIN}`)"
+  #     - "traefik.http.routers.overseerr-private.entrypoints=web,websecure"
+  #     - "traefik.http.routers.overseerr-private.tls=true"
+  #     - "traefik.http.routers.overseerr-private.tls.certresolver=letsencrypt"
+  #     - "traefik.http.routers.overseerr-private.service=overseerr"
+  #     # Service definition
+  #     - "traefik.http.services.overseerr.loadbalancer.server.port=5055"
+  #   # DISABLED: Switched to jellyseerr
 
   qbittorrent:
     container_name: "${CONTAINER_NAME_PREFIX}_qbittorrent"
@@ -507,23 +522,16 @@ volumes:
       
 
       
-  # jellyseerr_config_volume:
-  #   name: "${CONTAINER_NAME_PREFIX}_jellyseerr_config"
+  jellyseerr_config_volume:
+
+  # overseerr_config_volume:
+  #   name: "${CONTAINER_NAME_PREFIX}_overseerr_config"
   #   driver: local
   #   driver_opts:
   #     type: ${CONFIG_VOLUME_TYPE:-}
   #     o: ${CONFIG_VOLUME_OPTIONS:-}
-  #     device: ${CONFIG_BASE}/jellyseerr
-  #   # DISABLED: Related to jellyseerr service
-
-  # ARM64-compatible alternative to jellyseerr:
-  overseerr_config_volume:
-    name: "${CONTAINER_NAME_PREFIX}_overseerr_config"
-    driver: local
-    driver_opts:
-      type: ${CONFIG_VOLUME_TYPE:-}
-      o: ${CONFIG_VOLUME_OPTIONS:-}
-      device: ${CONFIG_BASE}/overseerr
+  #     device: ${CONFIG_BASE}/overseerr
+  #   # DISABLED: Switched to jellyseerr
       
   qbittorrent_config_volume:
     name: "${CONTAINER_NAME_PREFIX}_qbittorrent_config"
