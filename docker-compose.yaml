@@ -446,6 +446,37 @@ services:
   #       max-size: 10m
   #   # DISABLED: Related to jellystat service
 
+  tar_extractor:
+    container_name: "${CONTAINER_NAME_PREFIX}_tar_extractor"
+    image: "alpine:latest"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - EXTRACTION_PATH=${TAR_EXTRACTION_PATH:-/media-center/sabnzbd}
+    volumes:
+      - "media_volume:${CONTAINER_MEDIA_PATH}"
+    networks:
+      - media_center_apps
+    restart: unless-stopped
+    command: >
+      sh -c "
+        apk add --no-cache bash shadow &&
+        addgroup -g \$$PGID appgroup &&
+        adduser -u \$$PUID -G appgroup -D appuser &&
+        while true; do
+          echo \"Starting tar extraction at \$$(date)\" &&
+          su appuser -c '
+            find \"\$$EXTRACTION_PATH\" -type f -name \"*.tar\" | while read -r tarfile; do
+              dir=\"\$$(dirname \"\$$tarfile\")\"
+              echo \"Extracting: \$$tarfile into \$$dir\"
+              tar -xf \"\$$tarfile\" -C \"\$$dir\" && rm -f \"\$$tarfile\"
+            done
+          ' &&
+          echo \"Extraction complete, sleeping for 10 minutes\" &&
+          sleep 600
+        done
+      "
+
 networks:
   # External proxy network for reverse proxy access to user-facing services
   proxy:
@@ -522,37 +553,6 @@ volumes:
       
 
       
-  tar_extractor:
-    container_name: "${CONTAINER_NAME_PREFIX}_tar_extractor"
-    image: "alpine:latest"
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - EXTRACTION_PATH=${TAR_EXTRACTION_PATH:-/media-center/sabnzbd}
-    volumes:
-      - "media_volume:${CONTAINER_MEDIA_PATH}"
-    networks:
-      - media_center_apps
-    restart: unless-stopped
-    command: >
-      sh -c "
-        apk add --no-cache bash shadow &&
-        addgroup -g \$$PGID appgroup &&
-        adduser -u \$$PUID -G appgroup -D appuser &&
-        while true; do
-          echo \"Starting tar extraction at \$$(date)\" &&
-          su appuser -c '
-            find \"\$$EXTRACTION_PATH\" -type f -name \"*.tar\" | while read -r tarfile; do
-              dir=\"\$$(dirname \"\$$tarfile\")\"
-              echo \"Extracting: \$$tarfile into \$$dir\"
-              tar -xf \"\$$tarfile\" -C \"\$$dir\" && rm -f \"\$$tarfile\"
-            done
-          ' &&
-          echo \"Extraction complete, sleeping for 10 minutes\" &&
-          sleep 600
-        done
-      "
-
   jellyseerr_config_volume:
     name: "${CONTAINER_NAME_PREFIX}_jellyseerr_config"
     driver: local
