@@ -448,10 +448,11 @@ services:
 
   tar_extractor:
     container_name: "${CONTAINER_NAME_PREFIX}_tar_extractor"
-    image: "alpine:latest"
+    image: "lscr.io/linuxserver/baseimage-alpine:latest"
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
+      - TZ=${TZ}
       - EXTRACTION_PATH=${TAR_EXTRACTION_PATH:-/media/sabnzbd}
     volumes:
       - "media_volume:${CONTAINER_MEDIA_PATH}"
@@ -459,20 +460,20 @@ services:
       - container_internet
     restart: unless-stopped
     command: >
-      sh -c "
-        apk add --no-cache bash shadow &&
-        addgroup -g \$$PGID appgroup &&
-        adduser -u \$$PUID -G appgroup -D appuser &&
+      bash -c "
         while true; do
-          echo \"Starting tar extraction at \$$(date)\" &&
-          su appuser -c '
-            find \"\$$EXTRACTION_PATH\" -type f -name \"*.tar\" | while read -r tarfile; do
-              dir=\"\$$(dirname \"\$$tarfile\")\"
-              echo \"Extracting: \$$tarfile into \$$dir\"
-              tar -xf \"\$$tarfile\" -C \"\$$dir\" && rm -f \"\$$tarfile\"
-            done
-          ' &&
-          echo \"Extraction complete, sleeping for 10 minutes\" &&
+          echo \"Starting tar extraction at \$(date)\"
+          find \"\$EXTRACTION_PATH\" -type f -name \"*.tar\" 2>/dev/null | while read -r tarfile; do
+            dir=\"\$(dirname \"\$tarfile\")\"
+            echo \"Extracting: \$tarfile into \$dir\"
+            if tar -xf \"\$tarfile\" -C \"\$dir\"; then
+              rm -f \"\$tarfile\"
+              echo \"Successfully extracted and removed \$tarfile\"
+            else
+              echo \"Failed to extract \$tarfile\"
+            fi
+          done
+          echo \"Extraction complete, sleeping for 10 minutes\"
           sleep 600
         done
       "
