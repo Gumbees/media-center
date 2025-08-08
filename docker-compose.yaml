@@ -237,6 +237,7 @@ services:
   sabnzbd:
     container_name: "${CONTAINER_NAME_PREFIX}_sabnzbd"
     image: "lscr.io/linuxserver/sabnzbd:latest"
+    platform: linux/arm64
     entrypoint: ["/init"]
     environment:
       - PUID=${PUID}
