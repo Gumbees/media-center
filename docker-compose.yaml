@@ -236,9 +236,8 @@ services:
 
   sabnzbd:
     container_name: "${CONTAINER_NAME_PREFIX}_sabnzbd"
-    image: "lscr.io/linuxserver/sabnzbd:4.5.2-ls226"
+    image: "hotio/sabnzbd:release"
     platform: linux/arm64
-    entrypoint: ["/init"]
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
