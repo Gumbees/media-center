@@ -369,10 +369,12 @@ services:
       - MODEL_IDLE_TIMEOUT=${WHISPER_IDLE_TIMEOUT:-300}
     volumes:
       - "whisper_cache_volume:/root/.cache"
-    # Optimize CPU usage for RK3588 (use big cores for better performance)
-    cpuset: "4-7"
     sysctls:
       - net.core.somaxconn=1024
+    deploy:
+      resources:
+        reservations:
+          cpus: "4-7"
     networks:
       - media_center_apps
       - container_internet
