@@ -456,7 +456,7 @@ services:
     volumes:
       - "media_volume:${CONTAINER_MEDIA_PATH}"
     networks:
-      - media_center_apps
+      - container_internet
     restart: unless-stopped
     command: >
       sh -c "
