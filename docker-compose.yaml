@@ -452,7 +452,7 @@ services:
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
-      - EXTRACTION_PATH=${TAR_EXTRACTION_PATH:-/media-center/sabnzbd}
+      - EXTRACTION_PATH=${TAR_EXTRACTION_PATH:-/media/sabnzbd}
     volumes:
       - "media_volume:${CONTAINER_MEDIA_PATH}"
     networks:
