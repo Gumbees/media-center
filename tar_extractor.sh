@@ -16,13 +16,18 @@ while :; do
   find "$EXTRACTION_PATH" -type f -name '*.tar' 2>/dev/null | while IFS= read -r tarfile; do
     dir=${tarfile%/*}
     log "Extracting: $tarfile -> $dir"
-    # -k keeps existing files (skip overwrite) to avoid permission errors on files not owned by this user
-    if tar -xvfk "$tarfile" -C "$dir" 2>&1 | while IFS= read -r line; do log "tar: $line"; done; then
+
+    tmpfile="$(mktemp)"
+    # BusyBox tar doesn't support -k; use plain extract and rely on correct permissions/user
+    if tar -xvf "$tarfile" -C "$dir" >"$tmpfile" 2>&1; then
+      while IFS= read -r line; do log "tar: $line"; done <"$tmpfile"
       rm -f "$tarfile"
       log "Done: $tarfile (removed)"
     else
+      while IFS= read -r line; do log "tar: $line"; done <"$tmpfile"
       log "ERROR extracting $tarfile"
     fi
+    rm -f "$tmpfile"
   done
 
   log "Sleeping 600s"
