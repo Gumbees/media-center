@@ -412,6 +412,9 @@ services:
     deploy:
       restart_policy:
         condition: any
+      update_config:
+        parallelism: 1
+        order: stop-first
     command: ["/bin/sh", "/usr/local/bin/extract-tars.sh"]
     configs:
       - source: tar_extractor_script
