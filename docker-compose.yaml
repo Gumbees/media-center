@@ -333,8 +333,7 @@ services:
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN}
     networks:
-      - media_center_apps  # Access to app services
-      - media_center_apps # Internet access for tunnel
+      - media_center_apps  # Access to app services and internet for tunnel
       # NOTE: Cloudflared does NOT connect to database networks for security
     restart: always
     deploy:
