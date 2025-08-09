@@ -338,50 +338,7 @@ services:
     deploy:
       replicas: ${ENABLE_CLOUDFLARED:-0}
 
-  whisper:
-    container_name: "${CONTAINER_NAME_PREFIX}_whisper"
-    # ARM64-optimized for Orange Pi 5 / RK3588 with better performance
-    image: "onerahmet/openai-whisper-asr-webservice:${WHISPER_IMAGE_TAG:-latest}"
-    environment:
-      - ASR_MODEL=${WHISPER_MODEL:-base}  # base model for better balance on ARM64
-      - ASR_ENGINE=${WHISPER_ENGINE:-faster_whisper}  # faster_whisper for ARM optimization
-      - ASR_DEVICE=${WHISPER_DEVICE:-cpu}
-      - MODEL_IDLE_TIMEOUT=${WHISPER_IDLE_TIMEOUT:-300}
-    volumes:
-      - "whisper_cache_volume:/root/.cache"
-    sysctls:
-      - net.core.somaxconn=1024
-    deploy:
-      resources:
-        reservations:
-          cpus: "4"
-    networks:
-      - media_center_apps
-    restart: unless-stopped
-    # For GPU support, uncomment the following lines and set WHISPER_DEVICE=cuda, WHISPER_IMAGE_TAG=latest-gpu:
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
-    labels:
-      - "traefik.enable=true"
-      # Public domain router
-      - "traefik.http.routers.whisper-public.rule=Host(`${WHISPER_PUBLIC_DOMAIN}`)"
-      - "traefik.http.routers.whisper-public.entrypoints=web,websecure"
-      - "traefik.http.routers.whisper-public.tls=true"
-      - "traefik.http.routers.whisper-public.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.whisper-public.service=whisper"
-      # Private domain router
-      - "traefik.http.routers.whisper-private.rule=Host(`${WHISPER_PRIVATE_DOMAIN}`)"
-      - "traefik.http.routers.whisper-private.entrypoints=web,websecure"
-      - "traefik.http.routers.whisper-private.tls=true"
-      - "traefik.http.routers.whisper-private.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.whisper-private.service=whisper"
-      # Service definition
-      - "traefik.http.services.whisper.loadbalancer.server.port=9000"
+
 
   # jellystat:
   #   container_name: "${CONTAINER_NAME_PREFIX}_jellystat"
@@ -578,13 +535,7 @@ volumes:
       o: ${CONFIG_VOLUME_OPTIONS:-}
       device: ${CONFIG_BASE}/lidarr
       
-  whisper_cache_volume:
-    name: "${CONTAINER_NAME_PREFIX}_whisper_cache"
-    driver: local
-    driver_opts:
-      type: ${TEMP_VOLUME_TYPE:-}
-      o: ${TEMP_VOLUME_OPTIONS:-}
-      device: ${TEMP_BASE}/whisper/cache
+
       
   # jellystat_config_volume:
   #   name: "${CONTAINER_NAME_PREFIX}_jellystat_config"
