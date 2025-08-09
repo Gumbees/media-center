@@ -476,7 +476,7 @@ networks:
 
   # Stack network with internet access (routing handled by host)
   media_center_apps:
-    name: "${MEDIA_CENTER_NETWORK}"
+    name: "${CONTAINER_NAME_PREFIX}_network"
     driver: overlay
     attachable: true
 
