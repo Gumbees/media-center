@@ -67,9 +67,8 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
       - /lib/firmware:/lib/firmware:ro
     networks:
-      proxy:
-      media_center_apps:
-      container_internet:
+      - traefik_public
+      - media_center_apps
     security_opt: # enables full access to /sys and /proc, still far better than privileged: true
       - systempaths=unconfined
       - apparmor=unconfined
@@ -361,9 +360,8 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: "4-7"
+          cpus: "4"
     networks:
-      - media_center_apps
       - media_center_apps
     restart: unless-stopped
     # For GPU support, uncomment the following lines and set WHISPER_DEVICE=cuda, WHISPER_IMAGE_TAG=latest-gpu:
