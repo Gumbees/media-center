@@ -55,9 +55,6 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
-    group_add:
-      - "44"  # host "video" group id – lets Jellyfin open the devices
-      - "105"  # host "render" group id – lets Jellyfin open the devices
     devices:
       - '/dev/dri:/dev/dri'
       - '/dev/dma_heap:/dev/dma_heap'
