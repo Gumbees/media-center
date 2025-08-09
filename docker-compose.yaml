@@ -24,9 +24,8 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
-      - proxy
+      - traefik_public
       - media_center_apps
-      - container_internet
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -106,9 +105,8 @@ services:
     volumes:
       - "jellyseerr_config_volume:/app/config"
     networks:
-      - proxy
+      - traefik_public
       - media_center_apps
-      - container_pia_internet
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -175,9 +173,8 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
       - "temp_volume:/temp/qbittorrent"
     networks:
-      - proxy
+      - traefik_public
       - media_center_apps
-      - container_pia_internet
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -209,9 +206,8 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
-      - proxy
+      - traefik_public
       - media_center_apps
-      - container_pia_internet
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -243,9 +239,8 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
       - "temp_volume:/temp"
     networks:
-      - proxy
+      - traefik_public
       - media_center_apps
-      - container_pia_internet
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -277,9 +272,8 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
-      - proxy
+      - traefik_public
       - media_center_apps
-      - container_pia_internet
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -311,9 +305,8 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
     networks:
-      - proxy
+      - traefik_public
       - media_center_apps
-      - container_internet
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -341,7 +334,7 @@ services:
       - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN}
     networks:
       - media_center_apps  # Access to app services
-      - container_internet # Internet access for tunnel
+      - media_center_apps # Internet access for tunnel
       # NOTE: Cloudflared does NOT connect to database networks for security
     restart: always
     deploy:
@@ -372,7 +365,7 @@ services:
           cpus: "4-7"
     networks:
       - media_center_apps
-      - container_internet
+      - media_center_apps
     restart: unless-stopped
     # For GPU support, uncomment the following lines and set WHISPER_DEVICE=cuda, WHISPER_IMAGE_TAG=latest-gpu:
     # deploy:
@@ -454,7 +447,7 @@ services:
     volumes:
       - "media_volume:${CONTAINER_MEDIA_PATH}"
     networks:
-      - container_internet
+      - media_center_apps
     restart: unless-stopped
     command: >
       bash -c "
@@ -476,31 +469,17 @@ services:
       "
 
 networks:
-  # External proxy network for reverse proxy access to user-facing services
-  proxy:
+  # External Traefik ingress network (shared across stacks)
+  traefik_public:
     external: true
-    name: "proxy"
+    name: "traefik_public"
 
-  # Internal isolated network for inter-service communication (no internet access)
+  # Stack network with internet access (routing handled by host)
   media_center_apps:
     name: "${MEDIA_CENTER_NETWORK}"
-    internal: true
-    driver: bridge
+    driver: overlay
+    attachable: true
 
-  # External network for normal internet access (cloudflared only)
-  container_internet:
-    external: true
-    name: "containers_internet"
-
-  # External network for VPN internet access (media services)
-  container_pia_internet:
-    external: true
-    name: "containers_pia_internet"
-
-  # Home IoT network (optional)
-  home_iot:
-    external: ${ENABLE_HOME_IOT_NETWORK:-false}
-    name: "${HOME_IOT_NETWORK:-home_iot}"
 
   # # Isolated database network for jellystat database communication
   # # Apps connect to both media_center_apps AND this network to access database
