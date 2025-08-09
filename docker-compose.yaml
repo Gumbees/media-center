@@ -233,7 +233,6 @@ services:
   sabnzbd:
     container_name: "${CONTAINER_NAME_PREFIX}_sabnzbd"
     image: "lscr.io/linuxserver/sabnzbd:4.3.2"
-    platform: linux/arm64
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
