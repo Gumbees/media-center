@@ -401,10 +401,8 @@ services:
   #   # DISABLED: Related to jellystat service
 
   tar_extractor:
-    image: "lscr.io/linuxserver/baseimage-alpine:latest"
+    image: "alpine:3.20"
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
       - TZ=${TZ}
       - EXTRACTION_PATH=${TAR_EXTRACTION_PATH:-/media/sabnzbd}
     volumes:
@@ -414,24 +412,23 @@ services:
     deploy:
       restart_policy:
         condition: any
-    command: >
-      bash -c "
-        while true; do
-          echo \"Starting tar extraction at \$(date)\"
-          find \"\$EXTRACTION_PATH\" -type f -name \"*.tar\" 2>/dev/null | while read -r tarfile; do
-            dir=\"\$(dirname \"\$tarfile\")\"
-            echo \"Extracting: \$tarfile into \$dir\"
-            if tar -xf \"\$tarfile\" -C \"\$dir\"; then
-              rm -f \"\$tarfile\"
-              echo \"Successfully extracted and removed \$tarfile\"
-            else
-              echo \"Failed to extract \$tarfile\"
-            fi
-          done
-          echo \"Extraction complete, sleeping for 10 minutes\"
-          sleep 600
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      while true; do
+        echo "Starting tar extraction at $(date)"
+        find "$EXTRACTION_PATH" -type f -name "*.tar" 2>/dev/null | while read -r tarfile; do
+          dir="$(dirname "$tarfile")"
+          echo "Extracting: $tarfile into $dir"
+          if tar -xf "$tarfile" -C "$dir"; then
+            rm -f "$tarfile"
+            echo "Successfully extracted and removed $tarfile"
+          else
+            echo "Failed to extract $tarfile"
+          fi
         done
-      "
+        echo "Extraction complete, sleeping for 10 minutes"
+        sleep 600
+      done
 
 networks:
   # External Traefik ingress network (shared across stacks)
