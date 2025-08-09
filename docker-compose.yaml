@@ -412,10 +412,11 @@ services:
     deploy:
       restart_policy:
         condition: any
-    command: [
-      "/bin/sh", "-c",
-      "while true; do echo \"Starting tar extraction at $(date)\"; find \"$EXTRACTION_PATH\" -type f -name '*.tar' 2>/dev/null | while read -r tarfile; do dir=\"$(dirname \"$tarfile\")\"; echo \"Extracting: $tarfile into $dir\"; if tar -xf \"$tarfile\" -C \"$dir\"; then rm -f \"$tarfile\"; echo \"Successfully extracted and removed $tarfile\"; else echo \"Failed to extract $tarfile\"; fi; done; echo \"Extraction complete, sleeping for 10 minutes\"; sleep 600; done"
-    ]
+    command: ["/bin/sh", "/usr/local/bin/extract-tars.sh"]
+    configs:
+      - source: tar_extractor_script
+        target: /usr/local/bin/extract-tars.sh
+        mode: 0555
 
 networks:
   # External Traefik ingress network (shared across stacks)
@@ -538,6 +539,10 @@ volumes:
       
 
       
+configs:
+  tar_extractor_script:
+    external: true
+    name: tar_extractor.sh
   # jellystat_config_volume:
   #   name: "${CONTAINER_NAME_PREFIX}_jellystat_config"
   #   driver: local
