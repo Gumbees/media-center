@@ -4,20 +4,27 @@ set -eu
 
 : "${EXTRACTION_PATH:=/media/sabnzbd}"
 
+log() {
+  echo "[$(date)] $*"
+}
+
 while :; do
-  echo "Starting tar extraction at $(date)"
-  # Use POSIX sh-friendly loop; handle no-match case safely
-  for tarfile in "$EXTRACTION_PATH"/*.tar; do
-    [ -e "$tarfile" ] || continue
+  log "Scan: $EXTRACTION_PATH (recursive)"
+  count="$(find "$EXTRACTION_PATH" -type f -name '*.tar' 2>/dev/null | wc -l | tr -d ' ')"
+  log "Found $count .tar file(s)"
+
+  find "$EXTRACTION_PATH" -type f -name '*.tar' 2>/dev/null | while IFS= read -r tarfile; do
     dir=${tarfile%/*}
-    echo "Extracting: $tarfile into $dir"
-    if tar -xf "$tarfile" -C "$dir"; then
+    log "Extracting: $tarfile -> $dir"
+    # -k keeps existing files (skip overwrite) to avoid permission errors on files not owned by this user
+    if tar -xvfk "$tarfile" -C "$dir" 2>&1 | while IFS= read -r line; do log "tar: $line"; done; then
       rm -f "$tarfile"
-      echo "Successfully extracted and removed $tarfile"
+      log "Done: $tarfile (removed)"
     else
-      echo "Failed to extract $tarfile"
+      log "ERROR extracting $tarfile"
     fi
   done
-  echo "Extraction complete, sleeping for 10 minutes"
+
+  log "Sleeping 600s"
   sleep 600
 done

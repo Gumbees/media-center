@@ -402,6 +402,7 @@ services:
 
   tar_extractor:
     image: "alpine:3.20"
+    user: "${PUID}:${PGID}"
     environment:
       - TZ=${TZ}
       - EXTRACTION_PATH=${TAR_EXTRACTION_PATH:-/media/sabnzbd}
