@@ -12,7 +12,6 @@ version: "3.8"
 
 services:
   bazarr:
-    container_name: "${CONTAINER_NAME_PREFIX}_bazarr"
     image: "lscr.io/linuxserver/bazarr:latest"
     entrypoint: ["/init"]
     environment:
@@ -26,28 +25,30 @@ services:
     networks:
       - traefik_public
       - media_center_apps
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      # Public domain router
-      - "traefik.http.routers.bazarr-public.rule=Host(`${BAZARR_PUBLIC_DOMAIN}`)"
-      - "traefik.http.routers.bazarr-public.entrypoints=web,websecure"
-      - "traefik.http.routers.bazarr-public.tls=true"
-      - "traefik.http.routers.bazarr-public.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.bazarr-public.service=bazarr"
-      # Private domain router
-      - "traefik.http.routers.bazarr-private.rule=Host(`${BAZARR_PRIVATE_DOMAIN}`)"
-      - "traefik.http.routers.bazarr-private.entrypoints=web,websecure"
-      - "traefik.http.routers.bazarr-private.tls=true"
-      - "traefik.http.routers.bazarr-private.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.bazarr-private.service=bazarr"
-      # Service definition
-      - "traefik.http.services.bazarr.loadbalancer.server.port=6767"
+    deploy:
+      restart_policy:
+        condition: any
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_public"
+        # Public domain router
+        - "traefik.http.routers.bazarr-public.rule=Host(`${BAZARR_PUBLIC_DOMAIN}`)"
+        - "traefik.http.routers.bazarr-public.entrypoints=web,websecure"
+        - "traefik.http.routers.bazarr-public.tls=true"
+        - "traefik.http.routers.bazarr-public.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.bazarr-public.service=bazarr"
+        # Private domain router
+        - "traefik.http.routers.bazarr-private.rule=Host(`${BAZARR_PRIVATE_DOMAIN}`)"
+        - "traefik.http.routers.bazarr-private.entrypoints=web,websecure"
+        - "traefik.http.routers.bazarr-private.tls=true"
+        - "traefik.http.routers.bazarr-private.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.bazarr-private.service=bazarr"
+        # Service definition
+        - "traefik.http.services.bazarr.loadbalancer.server.port=6767"
 
 
 
   jellyfin:
-    container_name: "${CONTAINER_NAME_PREFIX}_jellyfin"
     image: "jellyfin/jellyfin:latest"
     environment:
       - PUID=${PUID}
@@ -72,28 +73,30 @@ services:
     security_opt: # enables full access to /sys and /proc, still far better than privileged: true
       - systempaths=unconfined
       - apparmor=unconfined
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      # Public domain router
-      - "traefik.http.routers.jellyfin-public.rule=Host(`${JELLYFIN_PUBLIC_DOMAIN}`)"
-      - "traefik.http.routers.jellyfin-public.entrypoints=web,websecure"
-      - "traefik.http.routers.jellyfin-public.tls=true"
-      - "traefik.http.routers.jellyfin-public.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.jellyfin-public.service=jellyfin"
-      # Private domain router
-      - "traefik.http.routers.jellyfin-private.rule=Host(`${JELLYFIN_PRIVATE_DOMAIN}`)"
-      - "traefik.http.routers.jellyfin-private.entrypoints=web,websecure"
-      - "traefik.http.routers.jellyfin-private.tls=true"
-      - "traefik.http.routers.jellyfin-private.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.jellyfin-private.service=jellyfin"
-      # Service definition
-      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+    deploy:
+      restart_policy:
+        condition: any
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_public"
+        # Public domain router
+        - "traefik.http.routers.jellyfin-public.rule=Host(`${JELLYFIN_PUBLIC_DOMAIN}`)"
+        - "traefik.http.routers.jellyfin-public.entrypoints=web,websecure"
+        - "traefik.http.routers.jellyfin-public.tls=true"
+        - "traefik.http.routers.jellyfin-public.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.jellyfin-public.service=jellyfin"
+        # Private domain router
+        - "traefik.http.routers.jellyfin-private.rule=Host(`${JELLYFIN_PRIVATE_DOMAIN}`)"
+        - "traefik.http.routers.jellyfin-private.entrypoints=web,websecure"
+        - "traefik.http.routers.jellyfin-private.tls=true"
+        - "traefik.http.routers.jellyfin-private.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.jellyfin-private.service=jellyfin"
+        # Service definition
+        - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
 
 
 
   jellyseerr:
-    container_name: "${CONTAINER_NAME_PREFIX}_jellyseerr"
     image: "fallenbagel/jellyseerr:latest"
     entrypoint: ["/sbin/tini", "--"]
     command: ["pnpm", "start"]
@@ -106,23 +109,26 @@ services:
     networks:
       - traefik_public
       - media_center_apps
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      # Public domain router
-      - "traefik.http.routers.jellyseerr-public.rule=Host(`${JELLYSEERR_PUBLIC_DOMAIN}`)"
-      - "traefik.http.routers.jellyseerr-public.entrypoints=web,websecure"
-      - "traefik.http.routers.jellyseerr-public.tls=true"
-      - "traefik.http.routers.jellyseerr-public.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.jellyseerr-public.service=jellyseerr"
-      # Private domain router
-      - "traefik.http.routers.jellyseerr-private.rule=Host(`${JELLYSEERR_PRIVATE_DOMAIN}`)"
-      - "traefik.http.routers.jellyseerr-private.entrypoints=web,websecure"
-      - "traefik.http.routers.jellyseerr-private.tls=true"
-      - "traefik.http.routers.jellyseerr-private.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.jellyseerr-private.service=jellyseerr"
-      # Service definition
-      - "traefik.http.services.jellyseerr.loadbalancer.server.port=5055"
+    deploy:
+      restart_policy:
+        condition: any
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_public"
+        # Public domain router
+        - "traefik.http.routers.jellyseerr-public.rule=Host(`${JELLYSEERR_PUBLIC_DOMAIN}`)"
+        - "traefik.http.routers.jellyseerr-public.entrypoints=web,websecure"
+        - "traefik.http.routers.jellyseerr-public.tls=true"
+        - "traefik.http.routers.jellyseerr-public.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.jellyseerr-public.service=jellyseerr"
+        # Private domain router
+        - "traefik.http.routers.jellyseerr-private.rule=Host(`${JELLYSEERR_PRIVATE_DOMAIN}`)"
+        - "traefik.http.routers.jellyseerr-private.entrypoints=web,websecure"
+        - "traefik.http.routers.jellyseerr-private.tls=true"
+        - "traefik.http.routers.jellyseerr-private.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.jellyseerr-private.service=jellyseerr"
+        # Service definition
+        - "traefik.http.services.jellyseerr.loadbalancer.server.port=5055"
 
   # overseerr:
   #   container_name: "${CONTAINER_NAME_PREFIX}_overseerr"
@@ -157,7 +163,6 @@ services:
   #   # DISABLED: Switched to jellyseerr
 
   qbittorrent:
-    container_name: "${CONTAINER_NAME_PREFIX}_qbittorrent"
     image: "lscr.io/linuxserver/qbittorrent:latest"
     entrypoint: ["/init"]
     environment:
@@ -174,26 +179,28 @@ services:
     networks:
       - traefik_public
       - media_center_apps
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      # Public domain router
-      - "traefik.http.routers.qbittorrent-public.rule=Host(`${QBITTORRENT_PUBLIC_DOMAIN}`)"
-      - "traefik.http.routers.qbittorrent-public.entrypoints=web,websecure"
-      - "traefik.http.routers.qbittorrent-public.tls=true"
-      - "traefik.http.routers.qbittorrent-public.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.qbittorrent-public.service=qbittorrent"
-      # Private domain router
-      - "traefik.http.routers.qbittorrent-private.rule=Host(`${QBITTORRENT_PRIVATE_DOMAIN}`)"
-      - "traefik.http.routers.qbittorrent-private.entrypoints=web,websecure"
-      - "traefik.http.routers.qbittorrent-private.tls=true"
-      - "traefik.http.routers.qbittorrent-private.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.qbittorrent-private.service=qbittorrent"
-      # Service definition
-      - "traefik.http.services.qbittorrent.loadbalancer.server.port=8080"
+    deploy:
+      restart_policy:
+        condition: any
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_public"
+        # Public domain router
+        - "traefik.http.routers.qbittorrent-public.rule=Host(`${QBITTORRENT_PUBLIC_DOMAIN}`)"
+        - "traefik.http.routers.qbittorrent-public.entrypoints=web,websecure"
+        - "traefik.http.routers.qbittorrent-public.tls=true"
+        - "traefik.http.routers.qbittorrent-public.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.qbittorrent-public.service=qbittorrent"
+        # Private domain router
+        - "traefik.http.routers.qbittorrent-private.rule=Host(`${QBITTORRENT_PRIVATE_DOMAIN}`)"
+        - "traefik.http.routers.qbittorrent-private.entrypoints=web,websecure"
+        - "traefik.http.routers.qbittorrent-private.tls=true"
+        - "traefik.http.routers.qbittorrent-private.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.qbittorrent-private.service=qbittorrent"
+        # Service definition
+        - "traefik.http.services.qbittorrent.loadbalancer.server.port=8080"
 
   radarr:
-    container_name: "${CONTAINER_NAME_PREFIX}_radarr"
     image: "lscr.io/linuxserver/radarr:develop"
     entrypoint: ["/init"]
     environment:
@@ -207,26 +214,28 @@ services:
     networks:
       - traefik_public
       - media_center_apps
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      # Public domain router
-      - "traefik.http.routers.radarr-public.rule=Host(`${RADARR_PUBLIC_DOMAIN}`)"
-      - "traefik.http.routers.radarr-public.entrypoints=web,websecure"
-      - "traefik.http.routers.radarr-public.tls=true"
-      - "traefik.http.routers.radarr-public.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.radarr-public.service=radarr"
-      # Private domain router
-      - "traefik.http.routers.radarr-private.rule=Host(`${RADARR_PRIVATE_DOMAIN}`)"
-      - "traefik.http.routers.radarr-private.entrypoints=web,websecure"
-      - "traefik.http.routers.radarr-private.tls=true"
-      - "traefik.http.routers.radarr-private.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.radarr-private.service=radarr"
-      # Service definition
-      - "traefik.http.services.radarr.loadbalancer.server.port=7878"
+    deploy:
+      restart_policy:
+        condition: any
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_public"
+        # Public domain router
+        - "traefik.http.routers.radarr-public.rule=Host(`${RADARR_PUBLIC_DOMAIN}`)"
+        - "traefik.http.routers.radarr-public.entrypoints=web,websecure"
+        - "traefik.http.routers.radarr-public.tls=true"
+        - "traefik.http.routers.radarr-public.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.radarr-public.service=radarr"
+        # Private domain router
+        - "traefik.http.routers.radarr-private.rule=Host(`${RADARR_PRIVATE_DOMAIN}`)"
+        - "traefik.http.routers.radarr-private.entrypoints=web,websecure"
+        - "traefik.http.routers.radarr-private.tls=true"
+        - "traefik.http.routers.radarr-private.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.radarr-private.service=radarr"
+        # Service definition
+        - "traefik.http.services.radarr.loadbalancer.server.port=7878"
 
   sabnzbd:
-    container_name: "${CONTAINER_NAME_PREFIX}_sabnzbd"
     image: "lscr.io/linuxserver/sabnzbd:4.3.2"
     environment:
       - PUID=${PUID}
@@ -240,26 +249,28 @@ services:
     networks:
       - traefik_public
       - media_center_apps
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      # Public domain router
-      - "traefik.http.routers.sabnzbd-public.rule=Host(`${SABNZBD_PUBLIC_DOMAIN}`)"
-      - "traefik.http.routers.sabnzbd-public.entrypoints=web,websecure"
-      - "traefik.http.routers.sabnzbd-public.tls=true"
-      - "traefik.http.routers.sabnzbd-public.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.sabnzbd-public.service=sabnzbd"
-      # Private domain router
-      - "traefik.http.routers.sabnzbd-private.rule=Host(`${SABNZBD_PRIVATE_DOMAIN}`)"
-      - "traefik.http.routers.sabnzbd-private.entrypoints=web,websecure"
-      - "traefik.http.routers.sabnzbd-private.tls=true"
-      - "traefik.http.routers.sabnzbd-private.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.sabnzbd-private.service=sabnzbd"
-      # Service definition
-      - "traefik.http.services.sabnzbd.loadbalancer.server.port=8080"
+    deploy:
+      restart_policy:
+        condition: any
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_public"
+        # Public domain router
+        - "traefik.http.routers.sabnzbd-public.rule=Host(`${SABNZBD_PUBLIC_DOMAIN}`)"
+        - "traefik.http.routers.sabnzbd-public.entrypoints=web,websecure"
+        - "traefik.http.routers.sabnzbd-public.tls=true"
+        - "traefik.http.routers.sabnzbd-public.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.sabnzbd-public.service=sabnzbd"
+        # Private domain router
+        - "traefik.http.routers.sabnzbd-private.rule=Host(`${SABNZBD_PRIVATE_DOMAIN}`)"
+        - "traefik.http.routers.sabnzbd-private.entrypoints=web,websecure"
+        - "traefik.http.routers.sabnzbd-private.tls=true"
+        - "traefik.http.routers.sabnzbd-private.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.sabnzbd-private.service=sabnzbd"
+        # Service definition
+        - "traefik.http.services.sabnzbd.loadbalancer.server.port=8080"
 
   sonarr:
-    container_name: "${CONTAINER_NAME_PREFIX}_sonarr"
     image: "lscr.io/linuxserver/sonarr:develop"
     entrypoint: ["/init"]
     environment:
@@ -273,26 +284,28 @@ services:
     networks:
       - traefik_public
       - media_center_apps
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      # Public domain router
-      - "traefik.http.routers.sonarr-public.rule=Host(`${SONARR_PUBLIC_DOMAIN}`)"
-      - "traefik.http.routers.sonarr-public.entrypoints=web,websecure"
-      - "traefik.http.routers.sonarr-public.tls=true"
-      - "traefik.http.routers.sonarr-public.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.sonarr-public.service=sonarr"
-      # Private domain router
-      - "traefik.http.routers.sonarr-private.rule=Host(`${SONARR_PRIVATE_DOMAIN}`)"
-      - "traefik.http.routers.sonarr-private.entrypoints=web,websecure"
-      - "traefik.http.routers.sonarr-private.tls=true"
-      - "traefik.http.routers.sonarr-private.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.sonarr-private.service=sonarr"
-      # Service definition
-      - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
+    deploy:
+      restart_policy:
+        condition: any
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_public"
+        # Public domain router
+        - "traefik.http.routers.sonarr-public.rule=Host(`${SONARR_PUBLIC_DOMAIN}`)"
+        - "traefik.http.routers.sonarr-public.entrypoints=web,websecure"
+        - "traefik.http.routers.sonarr-public.tls=true"
+        - "traefik.http.routers.sonarr-public.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.sonarr-public.service=sonarr"
+        # Private domain router
+        - "traefik.http.routers.sonarr-private.rule=Host(`${SONARR_PRIVATE_DOMAIN}`)"
+        - "traefik.http.routers.sonarr-private.entrypoints=web,websecure"
+        - "traefik.http.routers.sonarr-private.tls=true"
+        - "traefik.http.routers.sonarr-private.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.sonarr-private.service=sonarr"
+        # Service definition
+        - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
 
   lidarr:
-    container_name: "${CONTAINER_NAME_PREFIX}_lidarr"
     image: "blampe/lidarr:latest"
     entrypoint: ["/init"]
     environment:
@@ -306,26 +319,28 @@ services:
     networks:
       - traefik_public
       - media_center_apps
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      # Public domain router
-      - "traefik.http.routers.lidarr-public.rule=Host(`${LIDARR_PUBLIC_DOMAIN}`)"
-      - "traefik.http.routers.lidarr-public.entrypoints=web,websecure"
-      - "traefik.http.routers.lidarr-public.tls=true"
-      - "traefik.http.routers.lidarr-public.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.lidarr-public.service=lidarr"
-      # Private domain router
-      - "traefik.http.routers.lidarr-private.rule=Host(`${LIDARR_PRIVATE_DOMAIN}`)"
-      - "traefik.http.routers.lidarr-private.entrypoints=web,websecure"
-      - "traefik.http.routers.lidarr-private.tls=true"
-      - "traefik.http.routers.lidarr-private.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.lidarr-private.service=lidarr"
-      # Service definition
-      - "traefik.http.services.lidarr.loadbalancer.server.port=8686"
+    deploy:
+      restart_policy:
+        condition: any
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_public"
+        # Public domain router
+        - "traefik.http.routers.lidarr-public.rule=Host(`${LIDARR_PUBLIC_DOMAIN}`)"
+        - "traefik.http.routers.lidarr-public.entrypoints=web,websecure"
+        - "traefik.http.routers.lidarr-public.tls=true"
+        - "traefik.http.routers.lidarr-public.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.lidarr-public.service=lidarr"
+        # Private domain router
+        - "traefik.http.routers.lidarr-private.rule=Host(`${LIDARR_PRIVATE_DOMAIN}`)"
+        - "traefik.http.routers.lidarr-private.entrypoints=web,websecure"
+        - "traefik.http.routers.lidarr-private.tls=true"
+        - "traefik.http.routers.lidarr-private.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.lidarr-private.service=lidarr"
+        # Service definition
+        - "traefik.http.services.lidarr.loadbalancer.server.port=8686"
 
   cloudflared:
-    container_name: "${CONTAINER_NAME_PREFIX}_cloudflared"
     image: "cloudflare/cloudflared:latest"
     entrypoint: ["cloudflared", "--no-autoupdate"]
     command: ["tunnel", "run"]
@@ -334,8 +349,9 @@ services:
     networks:
       - media_center_apps  # Access to app services and internet for tunnel
       # NOTE: Cloudflared does NOT connect to database networks for security
-    restart: always
     deploy:
+      restart_policy:
+        condition: any
       replicas: ${ENABLE_CLOUDFLARED:-0}
 
 
@@ -385,7 +401,6 @@ services:
   #   # DISABLED: Related to jellystat service
 
   tar_extractor:
-    container_name: "${CONTAINER_NAME_PREFIX}_tar_extractor"
     image: "lscr.io/linuxserver/baseimage-alpine:latest"
     environment:
       - PUID=${PUID}
@@ -396,7 +411,9 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH}"
     networks:
       - media_center_apps
-    restart: unless-stopped
+    deploy:
+      restart_policy:
+        condition: any
     command: >
       bash -c "
         while true; do
