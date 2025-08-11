@@ -90,7 +90,6 @@ services:
     networks:
       - traefik_public
       - media_center_apps
-    runtime: amd
     deploy:
       restart_policy:
         condition: any
