@@ -80,6 +80,7 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
+      - LIBVA_DRIVER_NAME=radeonsi
     volumes:
       - "jellyfin_config_volume:/config"
       - "temp_volume:/cache/jellyfin"
@@ -87,6 +88,9 @@ services:
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
       - /lib/firmware:/lib/firmware:ro
       - /dev/dri:/dev/dri
+      - /dev/kfd:/dev/kfd
+      - /usr/lib/x86_64-linux-gnu/dri:/usr/lib/x86_64-linux-gnu/dri:ro
+      - /etc/OpenCL:/etc/OpenCL:ro
     networks:
       - traefik_public
       - media_center_apps
