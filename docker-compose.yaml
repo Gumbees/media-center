@@ -28,9 +28,7 @@ services:
     deploy:
       restart_policy:
         condition: any
-      placement:
-        constraints:
-          - node.platform.arch == x86_64
+      placement: {}
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=traefik_public"
@@ -70,9 +68,8 @@ services:
       restart_policy:
         condition: any
       placement:
-        constraints:
-          - node.platform.arch == x86_64
-          - node.labels.amd_gpu == true
+        preferences:
+          - spread: node.labels.amd_gpu==true
 
   jellyfin:
     image: "jellyfin/jellyfin:latest"
@@ -85,10 +82,6 @@ services:
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
     devices:
       - '/dev/dri:/dev/dri'
-      - '/dev/dma_heap:/dev/dma_heap'
-      - '/dev/mali0:/dev/mali0'
-      - '/dev/rga:/dev/rga'
-      - '/dev/mpp_service:/dev/mpp_service'
     volumes:
       - "jellyfin_config_volume:/config"
       - "temp_volume:/cache/jellyfin"
@@ -122,9 +115,8 @@ services:
         # Service definition
         - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
       placement:
-        constraints:
-          - node.platform.arch == aarch64
-          - node.labels.rockchip == true
+        preferences:
+          - spread: node.labels.amd_gpu==true
 
 
 
