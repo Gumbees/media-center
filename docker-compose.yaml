@@ -28,6 +28,9 @@ services:
     deploy:
       restart_policy:
         condition: any
+      placement:
+        constraints:
+          - node.platform.arch == x86_64
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=traefik_public"
