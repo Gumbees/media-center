@@ -87,7 +87,9 @@ services:
       - "temp_volume:/cache/jellyfin"
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-      - /dev/dri:/dev/dri
+      - type: bind
+        source: /dev/dri
+        target: /dev/dri
     networks:
       - traefik_public
       - media_center_apps
