@@ -68,7 +68,7 @@ services:
         condition: any
       placement:
         constraints:
-          - node.platform.arch == amd64
+          - node.platform.arch == x86_64
           - node.labels.amd_gpu == true
 
   jellyfin:
