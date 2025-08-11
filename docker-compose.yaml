@@ -48,6 +48,27 @@ services:
 
 
 
+  whisper:
+    image: "ahmetoner/whisper-asr-webservice:latest"
+    environment:
+      - ASR_MODEL=${WHISPER_MODEL:-medium}
+      - ASR_ENGINE=${WHISPER_ENGINE:-faster-whisper}
+      - ASR_VAD=${WHISPER_VAD:-true}
+      - ASR_THREADS=${WHISPER_THREADS:-4}
+      - ASR_BEAM_SIZE=${WHISPER_BEAM_SIZE:-5}
+      - ASR_COMPUTE_TYPE=${WHISPER_COMPUTE_TYPE:-auto}
+    volumes:
+      - "whisper_models_volume:/root/.cache/whisper"
+    networks:
+      - media_center_apps
+    deploy:
+      restart_policy:
+        condition: any
+      placement:
+        constraints:
+          - node.platform.arch == amd64
+          - node.labels.amd_gpu == true
+
   jellyfin:
     image: "jellyfin/jellyfin:latest"
     environment:
@@ -93,6 +114,10 @@ services:
         - "traefik.http.routers.jellyfin-private.service=jellyfin"
         # Service definition
         - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+      placement:
+        constraints:
+          - node.platform.arch == arm64
+          - node.labels.rockchip == true
 
 
 
@@ -400,27 +425,7 @@ services:
   #       max-size: 10m
   #   # DISABLED: Related to jellystat service
 
-  tar_extractor:
-    image: "alpine:3.20"
-    user: "${PUID}:${PGID}"
-    environment:
-      - TZ=${TZ}
-      - EXTRACTION_PATH=${TAR_EXTRACTION_PATH:-/media/sabnzbd}
-    volumes:
-      - "media_volume:${CONTAINER_MEDIA_PATH}"
-    networks:
-      - media_center_apps
-    deploy:
-      restart_policy:
-        condition: any
-      update_config:
-        parallelism: 1
-        order: stop-first
-    command: ["/bin/sh", "/usr/local/bin/extract-tars.sh"]
-    configs:
-      - source: tar_extractor_script
-        target: /usr/local/bin/extract-tars.sh
-        mode: 0555
+  
 
 networks:
   # External Traefik ingress network (shared across stacks)
@@ -543,10 +548,15 @@ volumes:
       
 
       
+  whisper_models_volume:
+    name: "${CONTAINER_NAME_PREFIX}_whisper_models"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/whisper-models
+
 configs:
-  tar_extractor_script:
-    external: true
-    name: tar_extractor.sh
   # jellystat_config_volume:
   #   name: "${CONTAINER_NAME_PREFIX}_jellystat_config"
   #   driver: local
