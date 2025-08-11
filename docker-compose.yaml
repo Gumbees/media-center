@@ -81,9 +81,11 @@ services:
       - TZ=${TZ}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
       - LIBVA_DRIVER_NAME=radeonsi
+      - LIBVA_DRIVERS_PATH=/usr/lib/x86_64-linux-gnu/dri
       - AMD_VISIBLE_DEVICES=all
     security_opt:
       - seccomp:unconfined
+      - label=disable
     volumes:
       - "jellyfin_config_volume:/config"
       - "temp_volume:/cache/jellyfin"
@@ -92,6 +94,8 @@ services:
       - type: bind
         source: /dev/dri
         target: /dev/dri
+        bind:
+          selinux: "z"
     networks:
       - traefik_public
       - media_center_apps
