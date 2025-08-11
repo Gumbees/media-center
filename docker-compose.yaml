@@ -54,7 +54,7 @@ services:
       disable: true
     environment:
       - ASR_MODEL=${WHISPER_MODEL:-medium}
-      - ASR_ENGINE=${WHISPER_ENGINE:-faster-whisper}
+      - ASR_ENGINE=${WHISPER_ENGINE:-openai_whisper}
       - ASR_VAD=${WHISPER_VAD:-true}
       - ASR_THREADS=${WHISPER_THREADS:-4}
       - ASR_BEAM_SIZE=${WHISPER_BEAM_SIZE:-5}
