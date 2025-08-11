@@ -95,7 +95,9 @@ services:
       resources:
         reservations:
           generic_resources:
-            - "amd.com/gpu: 1"
+            - discrete_resource_spec:
+                kind: "amd.com/gpu"
+                value: 1
       restart_policy:
         condition: any
       labels:
