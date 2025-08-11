@@ -76,8 +76,8 @@ services:
     healthcheck:
       disable: true
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=${PUID}
+      - PGID=${PGID}
       - TZ=${TZ}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
       - LIBVA_DRIVER_NAME=radeonsi
@@ -86,13 +86,17 @@ services:
       - "temp_volume:/cache/jellyfin"
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-      - /dev/dri:/dev/dri
-      - /dev/kfd:/dev/kfd
     networks:
       - traefik_public
       - media_center_apps
-    privileged: true
+    runtime: amd
     deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: amd
+              count: all
+              capabilities: [gpu]
       restart_policy:
         condition: any
       labels:
