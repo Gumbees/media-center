@@ -89,7 +89,6 @@ services:
       - /lib/firmware:/lib/firmware:ro
       - /dev/dri:/dev/dri
       - /dev/kfd:/dev/kfd
-      - /usr/lib/x86_64-linux-gnu/dri:/usr/lib/x86_64-linux-gnu/dri:ro
       - /etc/OpenCL:/etc/OpenCL:ro
     networks:
       - traefik_public
