@@ -49,7 +49,7 @@ services:
 
 
   whisper:
-    image: "ahmetoner/whisper-asr-webservice:latest"
+    image: "onerahmet/openai-whisper-asr-webservice:latest"
     healthcheck:
       disable: true
     environment:
