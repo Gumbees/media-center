@@ -81,6 +81,7 @@ services:
       - TZ=${TZ}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
       - LIBVA_DRIVER_NAME=radeonsi
+      - AMD_VISIBLE_DEVICES=all
     volumes:
       - "jellyfin_config_volume:/config"
       - "temp_volume:/cache/jellyfin"
@@ -91,6 +92,10 @@ services:
       - traefik_public
       - media_center_apps
     deploy:
+      resources:
+        reservations:
+          generic_resources:
+            - "amd.com/gpu: 1"
       restart_policy:
         condition: any
       labels:
