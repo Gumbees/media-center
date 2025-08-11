@@ -86,10 +86,7 @@ services:
       - "temp_volume:/cache/jellyfin"
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-      - /lib/firmware:/lib/firmware:ro
-      - /dev/dri:/dev/dri
-      - /dev/kfd:/dev/kfd
-      - /etc/OpenCL:/etc/OpenCL:ro
+      - /dev/dri/renderD128:/dev/dri/renderD128
     networks:
       - traefik_public
       - media_center_apps
