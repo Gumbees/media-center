@@ -116,7 +116,7 @@ services:
         - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
       placement:
         constraints:
-          - node.platform.arch == arm64
+          - node.platform.arch == aarch64
           - node.labels.rockchip == true
 
 
