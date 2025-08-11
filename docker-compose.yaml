@@ -80,20 +80,17 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
-    devices:
-      - '/dev/dri:/dev/dri'
     volumes:
       - "jellyfin_config_volume:/config"
       - "temp_volume:/cache/jellyfin"
       - "media_volume:${CONTAINER_MEDIA_PATH}"
       - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
       - /lib/firmware:/lib/firmware:ro
+      - /dev/dri:/dev/dri
     networks:
       - traefik_public
       - media_center_apps
-    security_opt: # enables full access to /sys and /proc, still far better than privileged: true
-      - systempaths=unconfined
-      - apparmor=unconfined
+    privileged: true
     deploy:
       restart_policy:
         condition: any
