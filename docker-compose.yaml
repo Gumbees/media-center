@@ -82,6 +82,8 @@ services:
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
       - LIBVA_DRIVER_NAME=radeonsi
       - AMD_VISIBLE_DEVICES=all
+    security_opt:
+      - seccomp:unconfined
     volumes:
       - "jellyfin_config_volume:/config"
       - "temp_volume:/cache/jellyfin"
