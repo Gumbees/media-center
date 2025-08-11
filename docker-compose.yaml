@@ -73,19 +73,23 @@ services:
 
   jellyfin:
     image: "jellyfin/jellyfin:latest"
+    user: "root"
+    privileged: true
     healthcheck:
       disable: true
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
+      - PUID=0
+      - PGID=0
       - TZ=${TZ}
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
       - LIBVA_DRIVER_NAME=radeonsi
-      - LIBVA_DRIVERS_PATH=/usr/lib/x86_64-linux-gnu/dri
       - AMD_VISIBLE_DEVICES=all
     security_opt:
       - seccomp:unconfined
       - label=disable
+      - apparmor=unconfined
+    cap_add:
+      - ALL
     volumes:
       - "jellyfin_config_volume:/config"
       - "temp_volume:/cache/jellyfin"
