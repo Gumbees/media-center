@@ -93,6 +93,9 @@ services:
     networks:
       - traefik_public
       - media_center_apps
+    group_add:
+      - "105"   # <- replace with your render GID
+      - "39"    # <- replace with your video GID
     deploy:
       resources:
         reservations:
