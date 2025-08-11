@@ -309,6 +309,7 @@ services:
     networks:
       - traefik_public
       - media_center_apps
+    # run `getent group render` on the host
     deploy:
       restart_policy:
         condition: any
@@ -556,32 +557,4 @@ volumes:
       o: ${CONFIG_VOLUME_OPTIONS:-}
       device: ${CONFIG_BASE}/whisper-models
 
-configs:
-  # jellystat_config_volume:
-  #   name: "${CONTAINER_NAME_PREFIX}_jellystat_config"
-  #   driver: local
-  #   driver_opts:
-  #     type: ${CONFIG_VOLUME_TYPE:-}
-  #     o: ${CONFIG_VOLUME_OPTIONS:-}
-  #     device: ${CONFIG_BASE}/jellystat
-  #   # DISABLED: Related to jellystat service
   
-  # # Jellystat database volume
-  # jellystat_db:
-  #   name: "${CONTAINER_NAME_PREFIX}_jellystat_db"
-  #   driver: local
-  #   driver_opts:
-  #     type: ${CONFIG_VOLUME_TYPE:-}
-  #     o: ${CONFIG_VOLUME_OPTIONS:-}
-  #     device: ${CONFIG_BASE}/jellystat-db
-  #   # DISABLED: Related to jellystat service
-  
-  # # Jellystat backup volume
-  # jellystat_backup:
-  #   name: "${CONTAINER_NAME_PREFIX}_jellystat_backup"
-  #   driver: local
-  #   driver_opts:
-  #     type: ${CONFIG_VOLUME_TYPE:-}
-  #     o: ${CONFIG_VOLUME_OPTIONS:-}
-  #     device: ${CONFIG_BASE}/jellystat-backup
-  #   # DISABLED: Related to jellystat service
