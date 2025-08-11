@@ -50,6 +50,8 @@ services:
 
   whisper:
     image: "ahmetoner/whisper-asr-webservice:latest"
+    healthcheck:
+      disable: true
     environment:
       - ASR_MODEL=${WHISPER_MODEL:-medium}
       - ASR_ENGINE=${WHISPER_ENGINE:-faster-whisper}
@@ -71,6 +73,8 @@ services:
 
   jellyfin:
     image: "jellyfin/jellyfin:latest"
+    healthcheck:
+      disable: true
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
