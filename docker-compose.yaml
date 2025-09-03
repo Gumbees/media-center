@@ -494,22 +494,22 @@ volumes:
       
 
       
-  plex_config_volume:
-    name: "${CONTAINER_NAME_PREFIX}_plex_config"
-    driver: local
-    driver_opts:
-      type: ${CONFIG_VOLUME_TYPE:-}
-      o: ${CONFIG_VOLUME_OPTIONS:-}
-      device: ${CONFIG_BASE}/plex
-      
-  jellyfin_config_volume:
-    name: "${CONTAINER_NAME_PREFIX}_jellyfin_config"
-    driver: local
-    driver_opts:
-      type: ${CONFIG_VOLUME_TYPE:-}
-      o: ${CONFIG_VOLUME_OPTIONS:-}
-      device: ${CONFIG_BASE}/jellyfin
-      
+  # plex_config_volume:
+  #   name: "${CONTAINER_NAME_PREFIX}_plex_config"
+  #   driver: local
+  #   driver_opts:
+  #     type: ${CONFIG_VOLUME_TYPE:-}
+  #     o: ${CONFIG_VOLUME_OPTIONS:-}
+  #     device: ${CONFIG_BASE}/plex
+  #     
+  # jellyfin_config_volume:
+  #   name: "${CONTAINER_NAME_PREFIX}_jellyfin_config"
+  #   driver: local
+  #   driver_opts:
+  #     type: ${CONFIG_VOLUME_TYPE:-}
+  #     o: ${CONFIG_VOLUME_OPTIONS:-}
+  #     device: ${CONFIG_BASE}/jellyfin
+  #     
   tautulli_config_volume:
     name: "${CONTAINER_NAME_PREFIX}_tautulli_config"
     driver: local
