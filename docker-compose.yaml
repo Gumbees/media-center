@@ -47,55 +47,100 @@ services:
 
 
 
-  jellyfin:
-    container_name: "${CONTAINER_NAME_PREFIX}_jellyfin"
-    image: "jellyfin/jellyfin:latest"
+  # plex:
+  #   container_name: "${CONTAINER_NAME_PREFIX}_plex"
+  #   image: "lscr.io/linuxserver/plex:latest"
+  #   environment:
+  #     - PUID=${PUID}
+  #     - PGID=${PGID}
+  #     - TZ=${TZ}
+  #     - VERSION=docker
+  #     - ADVERTISE_IP=${PLEX_ADVERTISE_IP:-}
+  #     # - PLEX_CLAIM=${PLEX_CLAIM}  # optional
+  #   devices:
+  #     - '/dev/dri:/dev/dri'
+  #   volumes:
+  #     - "plex_config_volume:/config"
+  #     - "temp_volume:/transcode"
+  #     - "media_volume:${CONTAINER_MEDIA_PATH}"
+  #     - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
+  #   networks:
+  #     - proxy
+  #     - media_center_apps
+  #     - container_internet
+  #   restart: unless-stopped
+  #   labels:
+  #     - "traefik.enable=true"
+  #     # Public domain router
+  #     - "traefik.http.routers.plex-public.rule=Host(`${PLEX_PUBLIC_DOMAIN}`)"
+  #     - "traefik.http.routers.plex-public.entrypoints=web,websecure"
+  #     - "traefik.http.routers.plex-public.tls=true"
+  #     - "traefik.http.routers.plex-public.tls.certresolver=letsencrypt"
+  #     - "traefik.http.routers.plex-public.service=plex"
+  #     # Private domain router
+  #     - "traefik.http.routers.plex-private.rule=Host(`${PLEX_PRIVATE_DOMAIN}`)"
+  #     - "traefik.http.routers.plex-private.entrypoints=web,websecure"
+  #     - "traefik.http.routers.plex-private.tls=true"
+  #     - "traefik.http.routers.plex-private.tls.certresolver=letsencrypt"
+  #     - "traefik.http.routers.plex-private.service=plex"
+  #     # Service definition
+  #     - "traefik.http.services.plex.loadbalancer.server.port=32400"
+
+  # jellyfin:
+  #   container_name: "${CONTAINER_NAME_PREFIX}_jellyfin"
+  #   image: "jellyfin/jellyfin:latest"
+  #   healthcheck:
+  #     disable: true
+  #   privileged: true
+  #   runtime: amd
+  #   security_opt:
+  #     - seccomp:unconfined
+  #     - label=disable
+  #     - apparmor=unconfined
+  #   cap_add:
+  #     - ALL
+  #   environment:
+  #     - PGID=${PGID}
+  #     - PUID=${PUID}
+  #     - TZ=${TZ}
+  #     - JELLYFIN_PublishedServerUrl=${JELLYFIN_PUBLIC_DOMAIN}
+  #     - LIBVA_DRIVER_NAME=radeonsi
+  #     - AMD_VISIBLE_DEVICES=all
+  #   volumes:
+  #     - "jellyfin_config_volume:/config"
+  #     - "temp_volume:/cache"
+  #     - "media_volume:${CONTAINER_MEDIA_PATH}"
+  #     - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
+  #     - /dev/dri:/dev/dri:z
+  #   networks:
+  #     - proxy
+  #     - media_center_apps
+  #     - container_internet
+  #   restart: unless-stopped
+  #   labels:
+  #     - "traefik.enable=true"
+  #     # Public domain router
+  #     - "traefik.http.routers.jellyfin-public.rule=Host(`${JELLYFIN_PUBLIC_DOMAIN}`)"
+  #     - "traefik.http.routers.jellyfin-public.entrypoints=web,websecure"
+  #     - "traefik.http.routers.jellyfin-public.tls=true"
+  #     - "traefik.http.routers.jellyfin-public.tls.certresolver=letsencrypt"
+  #     - "traefik.http.routers.jellyfin-public.service=jellyfin"
+  #     # Private domain router
+  #     - "traefik.http.routers.jellyfin-private.rule=Host(`${JELLYFIN_PRIVATE_DOMAIN}`)"
+  #     - "traefik.http.routers.jellyfin-private.entrypoints=web,websecure"
+  #     - "traefik.http.routers.jellyfin-private.tls=true"
+  #     - "traefik.http.routers.jellyfin-private.tls.certresolver=letsencrypt"
+  #     - "traefik.http.routers.jellyfin-private.service=jellyfin"
+  #     # Service definition
+  #     - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+
+  tautulli:
+    container_name: "${CONTAINER_NAME_PREFIX}_tautulli"
+    image: "lscr.io/linuxserver/tautulli:latest"
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-      - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
-    group_add:
-      - "44"  # host “video” group id – lets Jellyfin open the devices
-      - "105"  # host “render” group id – lets Jellyfin open the devices
-    privileged: true
-    devices:
-      - '/dev/dri:/dev/dri'
-      - '/dev/dma_heap:/dev/dma_heap'
-      - '/dev/mali0:/dev/mali0'
-      - '/dev/rga:/dev/rga'
-      - '/dev/mpp_service:/dev/mpp_service'
-    volumes:
-      - "jellyfin_config_volume:/config"
-      - "temp_volume:/cache/jellyfin"
-      - "media_volume:${CONTAINER_MEDIA_PATH}"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-      - /lib/firmware:/lib/firmware:ro
-    networks:
-      proxy:
-      media_center_apps:
-      container_internet:
-    security_opt: # enables full access to /sys and /proc, still far better than privileged: true
-      - systempaths=unconfined
-      - apparmor=unconfined
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      # Public domain router
-      - "traefik.http.routers.jellyfin-public.rule=Host(`${JELLYFIN_PUBLIC_DOMAIN}`)"
-      - "traefik.http.routers.jellyfin-public.entrypoints=web,websecure"
-      - "traefik.http.routers.jellyfin-public.tls=true"
-      - "traefik.http.routers.jellyfin-public.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.jellyfin-public.service=jellyfin"
-      # Private domain router
-      - "traefik.http.routers.jellyfin-private.rule=Host(`${JELLYFIN_PRIVATE_DOMAIN}`)"
-      - "traefik.http.routers.jellyfin-private.entrypoints=web,websecure"
-      - "traefik.http.routers.jellyfin-private.tls=true"
-      - "traefik.http.routers.jellyfin-private.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.jellyfin-private.service=jellyfin"
-      # Service definition
-      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
-
 
 
   jellyseerr:
@@ -131,37 +176,36 @@ services:
       # Service definition
       - "traefik.http.services.jellyseerr.loadbalancer.server.port=5055"
 
-  # overseerr:
-  #   container_name: "${CONTAINER_NAME_PREFIX}_overseerr"
-  #   image: "lscr.io/linuxserver/overseerr:latest"
-  #   environment:
-  #     - PUID=${PUID}
-  #     - PGID=${PGID}
-  #     - TZ=${TZ}
-  #   volumes:
-  #     - "overseerr_config_volume:/config"
-  #   networks:
-  #     - proxy
-  #     - media_center_apps
-  #     - container_pia_internet
-  #   restart: unless-stopped
-  #   labels:
-  #     - "traefik.enable=true"
-  #     # Public domain router
-  #     - "traefik.http.routers.overseerr-public.rule=Host(`${OVERSEERR_PUBLIC_DOMAIN}`)"
-  #     - "traefik.http.routers.overseerr-public.entrypoints=web,websecure"
-  #     - "traefik.http.routers.overseerr-public.tls=true"
-  #     - "traefik.http.routers.overseerr-public.tls.certresolver=letsencrypt"
-  #     - "traefik.http.routers.overseerr-public.service=overseerr"
-  #     # Private domain router
-  #     - "traefik.http.routers.overseerr-private.rule=Host(`${OVERSEERR_PRIVATE_DOMAIN}`)"
-  #     - "traefik.http.routers.overseerr-private.entrypoints=web,websecure"
-  #     - "traefik.http.routers.overseerr-private.tls=true"
-  #     - "traefik.http.routers.overseerr-private.tls.certresolver=letsencrypt"
-  #     - "traefik.http.routers.overseerr-private.service=overseerr"
-  #     # Service definition
-  #     - "traefik.http.services.overseerr.loadbalancer.server.port=5055"
-  #   # DISABLED: Switched to jellyseerr
+  overseerr:
+    container_name: "${CONTAINER_NAME_PREFIX}_overseerr"
+    image: "lscr.io/linuxserver/overseerr:latest"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - "overseerr_config_volume:/config"
+    networks:
+      - proxy
+      - media_center_apps
+      - container_pia_internet
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      # Public domain router
+      - "traefik.http.routers.overseerr-public.rule=Host(`${OVERSEERR_PUBLIC_DOMAIN}`)"
+      - "traefik.http.routers.overseerr-public.entrypoints=web,websecure"
+      - "traefik.http.routers.overseerr-public.tls=true"
+      - "traefik.http.routers.overseerr-public.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.overseerr-public.service=overseerr"
+      # Private domain router
+      - "traefik.http.routers.overseerr-private.rule=Host(`${OVERSEERR_PRIVATE_DOMAIN}`)"
+      - "traefik.http.routers.overseerr-private.entrypoints=web,websecure"
+      - "traefik.http.routers.overseerr-private.tls=true"
+      - "traefik.http.routers.overseerr-private.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.overseerr-private.service=overseerr"
+      # Service definition
+      - "traefik.http.services.overseerr.loadbalancer.server.port=5055"
 
   qbittorrent:
     container_name: "${CONTAINER_NAME_PREFIX}_qbittorrent"
@@ -512,26 +556,45 @@ volumes:
       
 
       
+  plex_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_plex_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/plex
+      
   jellyfin_config_volume:
     name: "${CONTAINER_NAME_PREFIX}_jellyfin_config"
     driver: local
     driver_opts:
       type: ${CONFIG_VOLUME_TYPE:-}
       o: ${CONFIG_VOLUME_OPTIONS:-}
-      device: ${CONFIG_BASE}/jellyfin-data
+      device: ${CONFIG_BASE}/jellyfin
       
-
+  tautulli_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_tautulli_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/tautulli
       
   jellyseerr_config_volume:
-
-  # overseerr_config_volume:
-  #   name: "${CONTAINER_NAME_PREFIX}_overseerr_config"
-  #   driver: local
-  #   driver_opts:
-  #     type: ${CONFIG_VOLUME_TYPE:-}
-  #     o: ${CONFIG_VOLUME_OPTIONS:-}
-  #     device: ${CONFIG_BASE}/overseerr
-  #   # DISABLED: Switched to jellyseerr
+    name: "${CONTAINER_NAME_PREFIX}_jellyseerr_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/jellyseerr
+      
+  overseerr_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_overseerr_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/overseerr
       
   qbittorrent_config_volume:
     name: "${CONTAINER_NAME_PREFIX}_qbittorrent_config"

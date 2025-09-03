@@ -1,0 +1,31 @@
+# Plex Configuration
+# Copy this file to .env and update the values as needed
+
+# Plex Claim Token
+# Get your claim token from: https://www.plex.tv/claim/
+PLEX_CLAIM=your-plex-claim-token-here
+
+# Container Configuration
+CONTAINER_NAME_PREFIX=media_center
+
+# Volume Configuration
+CONFIG_VOLUME_TYPE=
+CONFIG_VOLUME_OPTIONS=
+CONFIG_BASE=/path/to/your/config/storage
+
+# Network Configuration
+# These should match your existing Traefik setup
+TRAEFIK_PUBLIC_NETWORK=traefik_public
+MEDIA_CENTER_NETWORK=media_center_network
+
+# Domain Configuration
+# Update these to match your domain setup
+PLEX_PUBLIC_DOMAIN=plex.bierlysmith.com
+PLEX_PRIVATE_DOMAIN=plex.home.bierlysmith.com
+JELLYFIN_PUBLIC_DOMAIN=media.home.bierlysmith.com
+JELLYFIN_PRIVATE_DOMAIN=jellyfin.local.bierlysmith.com
+
+# User Configuration
+PGID=911
+PUID=911
+TZ=America/New_York
