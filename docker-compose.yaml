@@ -201,6 +201,39 @@ services:
         # Service definition
         - "traefik.http.services.overseerr.loadbalancer.server.port=5055"
 
+  tautulli:
+    image: "lscr.io/linuxserver/tautulli:latest"
+    entrypoint: ["/init"]
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - "tautulli_config_volume:/config"
+    networks:
+      - traefik_public
+      - media_center_apps
+    deploy:
+      restart_policy:
+        condition: any
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik_public"
+        # Public domain router
+        - "traefik.http.routers.tautulli-public.rule=Host(`${TAUTULLI_PUBLIC_DOMAIN}`)"
+        - "traefik.http.routers.tautulli-public.entrypoints=web,websecure"
+        - "traefik.http.routers.tautulli-public.tls=true"
+        - "traefik.http.routers.tautulli-public.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.tautulli-public.service=tautulli"
+        # Private domain router
+        - "traefik.http.routers.tautulli-private.rule=Host(`${TAUTULLI_PRIVATE_DOMAIN}`)"
+        - "traefik.http.routers.tautulli-private.entrypoints=web,websecure"
+        - "traefik.http.routers.tautulli-private.tls=true"
+        - "traefik.http.routers.tautulli-private.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.tautulli-private.service=tautulli"
+        # Service definition
+        - "traefik.http.services.tautulli.loadbalancer.server.port=8181"
+
   qbittorrent:
     image: "lscr.io/linuxserver/qbittorrent:latest"
     entrypoint: ["/init"]
@@ -502,14 +535,14 @@ volumes:
   #     o: ${CONFIG_VOLUME_OPTIONS:-}
   #     device: ${CONFIG_BASE}/plex
   #     
-  # jellyfin_config_volume:
-  #   name: "${CONTAINER_NAME_PREFIX}_jellyfin_config"
-  #   driver: local
-  #   driver_opts:
-  #     type: ${CONFIG_VOLUME_TYPE:-}
-  #     o: ${CONFIG_VOLUME_OPTIONS:-}
-  #     device: ${CONFIG_BASE}/jellyfin
-  #     
+  jellyfin_config_volume:
+    name: "${CONTAINER_NAME_PREFIX}_jellyfin_config"
+    driver: local
+    driver_opts:
+      type: ${CONFIG_VOLUME_TYPE:-}
+      o: ${CONFIG_VOLUME_OPTIONS:-}
+      device: ${CONFIG_BASE}/jellyfin
+      
   tautulli_config_volume:
     name: "${CONTAINER_NAME_PREFIX}_tautulli_config"
     driver: local
