@@ -1,0 +1,14 @@
+{
+    "features": {
+        "cdi": true
+    },
+    "runtimes": {
+        "amd": {
+            "args": [],
+            "path": "amd-container-runtime"
+        }
+    },
+    "node-generic-resources": [
+        "amd.com/gpu=1"
+    ]
+}
