@@ -72,68 +72,67 @@ services:
         preferences:
           - spread: node.labels.amd_gpu==true
 
-  jellyfin:
-    image: "jellyfin/jellyfin:latest"
-    user: "root"
-    privileged: true
-    healthcheck:
-      disable: true
-    environment:
-      - PUID=0
-      - PGID=0
-      - TZ=${TZ}
-      - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
-      - LIBVA_DRIVER_NAME=radeonsi
-      - AMD_VISIBLE_DEVICES=all
-    security_opt:
-      - seccomp:unconfined
-      - label=disable
-      - apparmor=unconfined
-    cap_add:
-      - ALL
-    volumes:
-      - "jellyfin_config_volume:/config"
-      - "temp_volume:/cache/jellyfin"
-      - "media_volume:${CONTAINER_MEDIA_PATH}"
-      - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
-      - type: bind
-        source: /dev/dri
-        target: /dev/dri
-        bind:
-          selinux: "z"
-    networks:
-      - traefik_public
-      - media_center_apps
-    deploy:
-      resources:
-        reservations:
-          generic_resources:
-            - discrete_resource_spec:
-                kind: "amd.com/gpu"
-                value: 1
-      restart_policy:
-        condition: any
-      labels:
-        - "traefik.enable=true"
-        - "traefik.docker.network=traefik_public"
-        # Public domain router
-        - "traefik.http.routers.jellyfin-public.rule=Host(`${JELLYFIN_PUBLIC_DOMAIN}`)"
-        - "traefik.http.routers.jellyfin-public.entrypoints=web,websecure"
-        - "traefik.http.routers.jellyfin-public.tls=true"
-        - "traefik.http.routers.jellyfin-public.tls.certresolver=letsencrypt"
-        - "traefik.http.routers.jellyfin-public.service=jellyfin"
-        # Private domain router
-        - "traefik.http.routers.jellyfin-private.rule=Host(`${JELLYFIN_PRIVATE_DOMAIN}`)"
-        - "traefik.http.routers.jellyfin-private.entrypoints=web,websecure"
-        - "traefik.http.routers.jellyfin-private.tls=true"
-        - "traefik.http.routers.jellyfin-private.tls.certresolver=letsencrypt"
-        - "traefik.http.routers.jellyfin-private.service=jellyfin"
-        # Service definition
-        - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
-      placement:
-        preferences:
-          - spread: node.labels.amd_gpu==true
-
+  # jellyfin:
+  #   image: "jellyfin/jellyfin:latest"
+  #   user: "root"
+  #   privileged: true
+  #   healthcheck:
+  #     disable: true
+  #   environment:
+  #     - PUID=0
+  #     - PGID=0
+  #     - TZ=${TZ}
+  #     - JELLYFIN_PublishedServerUrl=${JELLYFIN_SERVER_URL}
+  #     - LIBVA_DRIVER_NAME=radeonsi
+  #     - AMD_VISIBLE_DEVICES=all
+  #   security_opt:
+  #     - seccomp:unconfined
+  #     - label=disable
+  #     - apparmor=unconfined
+  #   cap_add:
+  #     - ALL
+  #   volumes:
+  #     - "jellyfin_config_volume:/config"
+  #     - "temp_volume:/cache/jellyfin"
+  #     - "media_volume:${CONTAINER_MEDIA_PATH}"
+  #     - "media_volume:${CONTAINER_MEDIA_PATH_LEGACY}"
+  #     - type: bind
+  #       source: /dev/dri
+  #       target: /dev/dri
+  #       bind:
+  #         selinux: "z"
+  #   networks:
+  #     - traefik_public
+  #     - media_center_apps
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         generic_resources:
+  #           - discrete_resource_spec:
+  #               kind: "amd.com/gpu"
+  #               value: 1
+  #     restart_policy:
+  #       condition: any
+  #     labels:
+  #       - "traefik.enable=true"
+  #       - "traefik.docker.network=traefik_public"
+  #       # Public domain router
+  #       - "traefik.http.routers.jellyfin-public.rule=Host(`${JELLYFIN_PUBLIC_DOMAIN}`)"
+  #       - "traefik.http.routers.jellyfin-public.entrypoints=web,websecure"
+  #       - "traefik.http.routers.jellyfin-public.tls=true"
+  #       - "traefik.http.routers.jellyfin-public.tls.certresolver=letsencrypt"
+  #       - "traefik.http.routers.jellyfin-public.service=jellyfin"
+  #       # Private domain router
+  #       - "traefik.http.routers.jellyfin-private.rule=Host(`${JELLYFIN_PRIVATE_DOMAIN}`)"
+  #       - "traefik.http.routers.jellyfin-private.entrypoints=web,websecure"
+  #       - "traefik.http.routers.jellyfin-private.tls=true"
+  #       - "traefik.http.routers.jellyfin-private.tls.certresolver=letsencrypt"
+  #       - "traefik.http.routers.jellyfin-private.service=jellyfin"
+  #       # Service definition
+  #       - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+  #     placement:
+  #       preferences:
+  #         - spread: node.labels.amd_gpu==true
 
   jellyseerr:
     image: "fallenbagel/jellyseerr:latest"
