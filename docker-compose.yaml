@@ -47,22 +47,6 @@ services:
 
 
 
-  whisper:
-    image: "onerahmet/openai-whisper-asr-webservice:latest"
-    healthcheck:
-      disable: true
-    environment:
-      - ASR_MODEL=${WHISPER_MODEL:-medium}
-      - ASR_ENGINE=${WHISPER_ENGINE:-openai_whisper}
-      - ASR_VAD=${WHISPER_VAD:-true}
-      - ASR_THREADS=${WHISPER_THREADS:-4}
-      - ASR_BEAM_SIZE=${WHISPER_BEAM_SIZE:-5}
-      - ASR_COMPUTE_TYPE=${WHISPER_COMPUTE_TYPE:-auto}
-    volumes:
-      - "whisper_models_volume:/root/.cache/whisper"
-    networks:
-      - media_center_apps
-    restart: unless-stopped
 
   # jellyfin:
   #   image: "jellyfin/jellyfin:latest"
@@ -399,8 +383,6 @@ services:
       - media_center_apps  # Access to app services and internet for tunnel
       # NOTE: Cloudflared does NOT connect to database networks for security
     restart: unless-stopped
-    profiles:
-      - cloudflared
 
   plex:
     image: lscr.io/linuxserver/plex:latest
@@ -443,7 +425,6 @@ services:
     healthcheck:
       disable: true
     privileged: true
-    runtime: amd
     security_opt:
       - seccomp:unconfined
       - label=disable
@@ -672,12 +653,5 @@ volumes:
       
 
       
-  whisper_models_volume:
-    name: "${CONTAINER_NAME_PREFIX}_whisper_models"
-    driver: local
-    driver_opts:
-      type: ${CONFIG_VOLUME_TYPE:-}
-      o: ${CONFIG_VOLUME_OPTIONS:-}
-      device: ${CONFIG_BASE}/whisper-models
 
   
