@@ -342,6 +342,7 @@ services:
     networks:
       - traefik_public
       - media_center_apps
+      - home
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik_public"
@@ -461,6 +462,9 @@ networks:
     name: "${CONTAINER_NAME_PREFIX}_network"
     driver: bridge
     attachable: true
+
+  home:
+    external: true
 
 
   # # Isolated database network for jellystat database communication
